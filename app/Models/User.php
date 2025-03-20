@@ -3,14 +3,17 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Enums\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -19,8 +22,10 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'nick_name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -44,5 +49,28 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Validate if the user has a specific role.
+     *
+     * @param Role $role
+     * @return bool
+     */
+    public function hasRole(Role $role): bool
+    {
+        return $this->role === $role->value;
+    }
+
+    /**
+     * Assign a role to the user.
+     *
+     * @param Role $role
+     * @return void
+     */
+    public function assignRole(Role $role): void
+    {
+        $this->role = $role->value;
+        $this->save();
     }
 }

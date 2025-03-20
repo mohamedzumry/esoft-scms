@@ -19,9 +19,10 @@ type LoginForm = {
 interface LoginProps {
     status?: string;
     canResetPassword: boolean;
+    flash: any;
 }
 
-export default function Login({ status, canResetPassword }: LoginProps) {
+export default function Login({ status, canResetPassword, flash }: LoginProps) {
     const { data, setData, post, processing, errors, reset } = useForm<Required<LoginForm>>({
         email: '',
         password: '',
@@ -38,6 +39,19 @@ export default function Login({ status, canResetPassword }: LoginProps) {
     return (
         <AuthLayout title="Log in to your account" description="Enter your email and password below to log in">
             <Head title="Log in" />
+
+            {/* Display Flash Message */}
+            {flash?.error && (
+                <div className="mb-4 p-3 text-white w-full text-center bg-red-500 font-bold">
+                    {flash.error}
+                </div>
+            )}
+
+            {flash?.success && (
+                <div className="mb-4 p-3 text-white w-full text-center bg-green-500 font-bold">
+                    {flash.success}
+                </div>
+            )}
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">

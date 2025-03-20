@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
 
 type RegisterForm = {
-    name: string;
+    nick_name: string;
     email: string;
     password: string;
     password_confirmation: string;
@@ -18,7 +18,7 @@ type RegisterForm = {
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
-        name: '',
+        nick_name: '',
         email: '',
         password: '',
         password_confirmation: '',
@@ -26,18 +26,18 @@ export default function Register() {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('register'), {
+        post(route('password.set'), {
             onFinish: () => reset('password', 'password_confirmation'),
         });
     };
 
     return (
-        <AuthLayout title="Create an account" description="Enter your details below to create your account">
-            <Head title="Register" />
+        <AuthLayout title="Account Setup" description="Enter below details to finsh creating your account">
+            <Head title="Account Setup" />
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="name">Name</Label>
+                        <Label htmlFor="name">Display Name</Label>
                         <Input
                             id="name"
                             type="text"
@@ -45,12 +45,12 @@ export default function Register() {
                             autoFocus
                             tabIndex={1}
                             autoComplete="name"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
+                            value={data.nick_name}
+                            onChange={(e) => setData('nick_name', e.target.value)}
                             disabled={processing}
-                            placeholder="Full name"
+                            placeholder="John"
                         />
-                        <InputError message={errors.name} className="mt-2" />
+                        <InputError message={errors.nick_name} className="mt-2" />
                     </div>
 
                     <div className="grid gap-2">
