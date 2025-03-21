@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class EventController extends Controller
@@ -54,6 +55,8 @@ class EventController extends Controller
             $path = $request->file('event_image')->store('event_images', 'public');
             $validated['event_image'] = $path;
         }
+
+        $validated['created_by'] = Auth::user()->id;
 
         Event::create($validated);
         return redirect()->route('events.index')->with('success', 'Event created successfully.');

@@ -55,9 +55,9 @@ Route::middleware(['auth'])->group(function () {
     // Events
     Route::get('dashboard/events', [EventController::class, 'index'])->name('events.index');
     Route::post('dashboard/event-create', [EventController::class, 'store'])->name('events.store');
-    Route::get('dashboard/event-edit', [EventController::class, 'edit'])->name('events.edit');
-    Route::put('dashboard/event-edit', [EventController::class, 'update'])->name('events.update');
-    Route::delete('dashboard/event-create', [EventController::class, 'destroy'])->name('events.destroy');
+    Route::get('/event/{id}/edit', [EventController::class, 'edit'])->name('event.edit');
+    Route::put('dashboard/event-edit', [EventController::class, 'update'])->name('event.update');
+    Route::delete('/event/{id}', [EventController::class, 'destroy'])->name('events.destroy');
 
     // Event Categories
     Route::get('dashboard/event-categories', [EventCategoryController::class, 'index'])->name('event-categories.index');

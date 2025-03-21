@@ -41,6 +41,8 @@ export function AppSidebar() {
             href: '/dashboard',
             icon: LayoutGrid,
         },
+
+        // Only show 'Users' links for 'admin' and 'it_staff'
         ...(user?.role === 'admin' || user?.role === 'it_staff'
             ? [
                   {
@@ -50,15 +52,14 @@ export function AppSidebar() {
                   },
               ]
             : []),
-        ...(user?.role === 'admin' || user?.role === 'it_staff || user?.role === lecturer'
-            ? [
-                  {
-                      title: 'Events',
-                      href: '/dashboard/events',
-                      icon: Ticket,
-                  },
-              ]
-            : []),
+
+        {
+            title: 'Events',
+            href: '/dashboard/events',
+            icon: Ticket,
+        },
+
+        // Only show 'Event Categories' links for 'admin' and 'it_staff'
         ...(user?.role === 'admin' || user?.role === 'it_staff'
             ? [
                   {

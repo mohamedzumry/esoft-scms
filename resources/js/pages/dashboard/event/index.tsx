@@ -16,6 +16,7 @@ interface Event {
     venue: string;
     description?: string;
     event_image?: string;
+    registration_link?: string;
     created_by: number; // Assuming this is the user ID who created the event
 }
 
@@ -32,6 +33,7 @@ interface IndexProps {
     auth: {
         user: {
             id: number;
+            role: string;
         };
     };
 }
@@ -46,9 +48,11 @@ export default function Index({ upcomingEvents, pastEvents, categories, auth }: 
             <div className="container mx-auto px-4 py-8">
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button size="sm" className="mb-4 w-fit">
-                            Create Event
-                        </Button>
+                        {auth.user.role === 'admin' || auth.user.role === 'it_staff' || auth.user.role === 'lecturer' ? (
+                            <Button size="sm" className="mb-4 w-fit">
+                                Create Event
+                            </Button>
+                        ) : null}
                     </DialogTrigger>
                     <CreateEventForm categories={categories} />
                 </Dialog>
@@ -69,7 +73,11 @@ export default function Index({ upcomingEvents, pastEvents, categories, auth }: 
                         {upcomingEvents.length > 0 ? (
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                                 {upcomingEvents.map((event) => (
-                                    <EventCard key={event.id} event={event} isCreator={auth.user.id === event.created_by} />
+                                    <EventCard
+                                        key={event.id}
+                                        event={event}
+                                        isCreator={auth.user.id === event.created_by || auth.user.role === 'admin' || auth.user.role === 'it_staff'}
+                                    />
                                 ))}
                             </div>
                         ) : (
@@ -82,7 +90,11 @@ export default function Index({ upcomingEvents, pastEvents, categories, auth }: 
                         {pastEvents.length > 0 ? (
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                                 {pastEvents.map((event) => (
-                                    <EventCard key={event.id} event={event} isCreator={auth.user.id === event.created_by} />
+                                    <EventCard
+                                        key={event.id}
+                                        event={event}
+                                        isCreator={auth.user.id === event.created_by || auth.user.role === 'admin' || auth.user.role === 'it_staff'}
+                                    />
                                 ))}
                             </div>
                         ) : (
@@ -142,6 +154,13 @@ function EventCard({ event, isCreator }: EventCardProps) {
                 <div className="grid gap-4 py-4">
                     {event.event_image && (
                         <img src={`/storage/${event.event_image}`} alt={event.title} className="h-64 w-full rounded-md object-cover" />
+                    )}
+                    {event.registration_link != null && (
+                        <Button className="w-full" asChild>
+                            <Link href={event.registration_link!} target="_blank">
+                                Register Now
+                            </Link>
+                        </Button>
                     )}
                     <div className="space-y-2">
                         <h4 className="font-semibold">Description</h4>
