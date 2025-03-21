@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Dashboard\Event\EventCategoryController;
+use App\Http\Controllers\Dashboard\Event\EventController;
 use App\Http\Controllers\Dashboard\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -35,7 +37,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                     'title' => 'Advanced Mathematics',
                     'instructor' => 'Dr. Smith',
                     'enrollments' => 45
-                ],[
+                ],
+                [
                     'id' => 3,
                     'title' => 'Advanced Mathematics',
                     'instructor' => 'Dr. Smith',
@@ -48,7 +51,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/users', [UserController::class, 'index'])->name('dashboard.users');
+
+    // Events
+    Route::get('dashboard/events', [EventController::class, 'index'])->name('events.index');
+    Route::post('dashboard/event-create', [EventController::class, 'store'])->name('events.store');
+    Route::get('dashboard/event-edit', [EventController::class, 'edit'])->name('events.edit');
+    Route::put('dashboard/event-edit', [EventController::class, 'update'])->name('events.update');
+    Route::delete('dashboard/event-create', [EventController::class, 'destroy'])->name('events.destroy');
+
+    // Event Categories
+    Route::get('dashboard/event-categories', [EventCategoryController::class, 'index'])->name('event-categories.index');
+    Route::post('dashboard/event-category', [EventCategoryController::class, 'store'])->name('event-categories.store');
+    Route::delete('dashboard/event-category/{category}', [EventCategoryController::class, 'destroy'])
+    ->name('event-categories.destroy');
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';

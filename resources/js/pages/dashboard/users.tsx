@@ -37,7 +37,7 @@ interface UsersPageProps extends PageProps {
     availableRoles: string[];
 }
 
-export default function Dashboard() {
+export default function Users() {
     // Access props using usePage with proper typing
     const { users, availableRoles } = usePage<UsersPageProps>().props;
 
@@ -73,8 +73,8 @@ export default function Dashboard() {
     return (
         <AppLayout>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <Button size="sm" onClick={() => setIsOpen(true)} className="mb-4 w-fit">
+            <div className="flex flex-1 flex-col h-full p-4 rounded-xl gap-4">
+                <Button size="sm" onClick={() => setIsOpen(true)} className="w-fit mb-4">
                     Add New User
                 </Button>
 
@@ -82,6 +82,7 @@ export default function Dashboard() {
                 <Table>
                     <TableHeader>
                         <TableRow>
+                            <TableHead>ID</TableHead>
                             <TableHead>Email</TableHead>
                             <TableHead>Role</TableHead>
                             <TableHead>Name</TableHead>
@@ -91,6 +92,7 @@ export default function Dashboard() {
                     <TableBody>
                         {users.data.map((user) => (
                             <TableRow key={user.id}>
+                                <TableCell>{user.id}</TableCell>
                                 <TableCell>{user.email}</TableCell>
                                 <TableCell>{user.role}</TableCell>
                                 <TableCell>{user.name}</TableCell>
@@ -101,7 +103,7 @@ export default function Dashboard() {
                 </Table>
 
                 {/* Pagination */}
-                <div className="mt-4 flex gap-2">
+                <div className="flex gap-2 mt-4">
                     {users.links
                         // Filter out links without a URL (e.g., disabled Previous/Next)
                         .filter((link) => link.url !== null)
@@ -133,7 +135,7 @@ export default function Dashboard() {
                                     onChange={(e) => setData('name', e.target.value)}
                                     autoComplete="true"
                                 />
-                                {errors.name && <span className="text-sm text-red-500">{errors.name}</span>}
+                                {errors.name && <span className="text-red-500 text-sm">{errors.name}</span>}
                             </div>
                             <div>
                                 <Label htmlFor="email">Email</Label>
@@ -145,12 +147,12 @@ export default function Dashboard() {
                                     onChange={(e) => setData('email', e.target.value)}
                                     autoComplete="true"
                                 />
-                                {errors.email && <span className="text-sm text-red-500">{errors.email}</span>}
+                                {errors.email && <span className="text-red-500 text-sm">{errors.email}</span>}
                             </div>
                             {/* <div>
                                 <Label htmlFor="password">Password</Label>
                                 <Input required id="password" type="password" value={data.password} onChange={(e) => setData('password', e.target.value)}/>
-                                {errors.password && <span className="text-sm text-red-500">{errors.password}</span>}
+                                {errors.password && <span className="text-red-500 text-sm">{errors.password}</span>}
                             </div> */}
                             <div>
                                 <Label htmlFor="role">Role</Label>
@@ -159,7 +161,7 @@ export default function Dashboard() {
                                     id="role"
                                     value={data.role}
                                     onChange={(e) => setData('role', e.target.value)}
-                                    className="w-full rounded border px-2 py-1"
+                                    className="border rounded w-full px-2 py-1"
                                 >
                                     {availableRoles.map((role) => (
                                         <option key={role} value={role}>
@@ -167,7 +169,7 @@ export default function Dashboard() {
                                         </option>
                                     ))}
                                 </select>
-                                {errors.role && <span className="text-sm text-red-500">{errors.role}</span>}
+                                {errors.role && <span className="text-red-500 text-sm">{errors.role}</span>}
                             </div>
                             <Button type="submit" disabled={processing}>
                                 Create User

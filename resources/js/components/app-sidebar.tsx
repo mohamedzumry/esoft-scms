@@ -4,7 +4,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { type NavItem } from '@/types';
 import { PageProps } from '@inertiajs/core';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Users2 } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Ticket, Tickets, Users2 } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const footerNavItems: NavItem[] = [
@@ -47,6 +47,24 @@ export function AppSidebar() {
                       title: 'Users',
                       href: '/dashboard/users',
                       icon: Users2,
+                  },
+              ]
+            : []),
+        ...(user?.role === 'admin' || user?.role === 'it_staff || user?.role === lecturer'
+            ? [
+                  {
+                      title: 'Events',
+                      href: '/dashboard/events',
+                      icon: Ticket,
+                  },
+              ]
+            : []),
+        ...(user?.role === 'admin' || user?.role === 'it_staff'
+            ? [
+                  {
+                      title: 'Event Categories',
+                      href: '/dashboard/event-categories',
+                      icon: Tickets,
                   },
               ]
             : []),
