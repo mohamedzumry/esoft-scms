@@ -118,7 +118,7 @@ function EventCard({ event, isCreator }: EventCardProps) {
     const { delete: destroy } = useForm();
     const [eventIdToDelete, setEventIdToDelete] = React.useState(Number);
     const handleDeleteEvent = () => {
-        destroy(route('event.destroy', eventIdToDelete));
+        destroy(route('events.destroy', eventIdToDelete));
     };
     return (
         <Dialog>
@@ -174,7 +174,12 @@ function EventCard({ event, isCreator }: EventCardProps) {
                         <Button variant="outline" asChild>
                             <Link href={route('event.edit', { id: event.id })}>Edit</Link>
                         </Button>
-                        <Button
+                        <Button variant="destructive" size="sm">
+                            <Link href={route('events.destroy', event.id)} method="delete">
+                                Delete
+                            </Link>
+                        </Button>
+                        {/* <Button
                             variant="destructive"
                             onClick={() => {
                                 setEventIdToDelete(event.id);
@@ -182,7 +187,7 @@ function EventCard({ event, isCreator }: EventCardProps) {
                             }}
                         >
                             Delete
-                        </Button>
+                        </Button> */}
                     </div>
                 )}
             </DialogContent>

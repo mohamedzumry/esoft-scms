@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\EventCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class EventController extends Controller
@@ -90,7 +91,19 @@ class EventController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
-    {
-        //
+{
+    // Find the event by ID or fail with a 404
+    $event = Event::findOrFail($id);
+
+    // Delete the event image from storage if it exists
+    if ($event->event_image) {
+        Storage::disk('public')->delete($event->event_image);
     }
+
+    // Delete the event from the database
+    $event->delete();
+
+    // Redirect back to the events index with a success message
+    return redirect()->route('events.index')->with('success', 'Event deleted successfully.');
+}
 }

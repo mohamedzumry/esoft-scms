@@ -19,6 +19,7 @@ class Event extends Model
         'event_image',
         'description',
         'registration_link',
+        'created_by',
     ];
 
     public function category()
