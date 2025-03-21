@@ -115,11 +115,6 @@ interface EventCardProps {
 
 // Event Card Component
 function EventCard({ event, isCreator }: EventCardProps) {
-    const { delete: destroy } = useForm();
-    const [eventIdToDelete, setEventIdToDelete] = React.useState(Number);
-    const handleDeleteEvent = () => {
-        destroy(route('events.destroy', eventIdToDelete));
-    };
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -179,15 +174,6 @@ function EventCard({ event, isCreator }: EventCardProps) {
                                 Delete
                             </Link>
                         </Button>
-                        {/* <Button
-                            variant="destructive"
-                            onClick={() => {
-                                setEventIdToDelete(event.id);
-                                handleDeleteEvent();
-                            }}
-                        >
-                            Delete
-                        </Button> */}
                     </div>
                 )}
             </DialogContent>

@@ -69,6 +69,17 @@ export function AppSidebar() {
                   },
               ]
             : []),
+
+            // Only show Resources links for 'admin' and 'it_staff'
+        ...(user?.role === 'admin' || user?.role === 'it_staff'
+            ? [
+                  {
+                      title: 'Resources',
+                      href: '/dashboard/resources',
+                      icon: Tickets,
+                  },
+              ]
+            : []),
     ];
     return (
         <Sidebar collapsible="icon" variant="inset">

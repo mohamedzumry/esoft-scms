@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Dashboard\Event\EventCategoryController;
 use App\Http\Controllers\Dashboard\Event\EventController;
+use App\Http\Controllers\Dashboard\ResourceController;
 use App\Http\Controllers\Dashboard\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -64,6 +65,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('dashboard/event-category', [EventCategoryController::class, 'store'])->name('event-categories.store');
     Route::delete('dashboard/event-category/{category}', [EventCategoryController::class, 'destroy'])
     ->name('event-categories.destroy');
+
+    // Resource
+    Route::get('dashboard/resources', [ResourceController::class, 'index'])->name('resources.index');
+    Route::post('dashboard/resources', [ResourceController::class, 'store'])->name('resources.store');
+    Route::delete('dashboard/resources/{id}', [ResourceController::class, 'destroy'])->name('resources.destroy');
 });
 
 require __DIR__ . '/settings.php';
