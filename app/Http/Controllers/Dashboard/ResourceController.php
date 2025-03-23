@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Enums\ResourceCategory;
 use App\Http\Controllers\Controller;
 use App\Models\Resource;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use ReflectionClass;
 
 class ResourceController extends Controller
 {
@@ -14,10 +16,21 @@ class ResourceController extends Controller
      */
     public function index()
     {
+        // Use ReflectionClass to get constants from the enum
+        $reflection = new ReflectionClass(ResourceCategory::class);
+        $categories = [];
+
+        foreach ($reflection->getConstants() as $key => $value) {
+            $categories[] = [
+                'value' => $value,
+                'label' => ucfirst($value),
+            ];
+        }
         $resources = Resource::all();
 
         return Inertia::render('dashboard/resource/index', [
             'resources' => $resources,
+            'categories' => $categories,
         ]);
     }
 

@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Enums\Role;
+use App\Models\Reservation;
 use App\Models\User;
+use App\Policies\ReservationPolicy;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -31,4 +33,8 @@ class AuthServiceProvider extends ServiceProvider
             return false;
         });
     }
+
+    protected $policies = [
+        Reservation::class => ReservationPolicy::class,
+    ];
 }

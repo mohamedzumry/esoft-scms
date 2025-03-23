@@ -3,6 +3,7 @@
 use App\Http\Controllers\Dashboard\ChatController;
 use App\Http\Controllers\Dashboard\Event\EventCategoryController;
 use App\Http\Controllers\Dashboard\Event\EventController;
+use App\Http\Controllers\Dashboard\ReservationController;
 use App\Http\Controllers\Dashboard\ResourceController;
 use App\Http\Controllers\Dashboard\UserController;
 use Illuminate\Support\Facades\Route;
@@ -51,7 +52,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/dashboard/users', [UserController::class, 'index'])->name('dashboard.users');
 
     // Events
@@ -71,6 +72,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dashboard/resources', [ResourceController::class, 'index'])->name('resources.index');
     Route::post('dashboard/resources', [ResourceController::class, 'store'])->name('resources.store');
     Route::delete('dashboard/resources/{id}', [ResourceController::class, 'destroy'])->name('resources.destroy');
+
+    // Reservation
+    Route::get('dashboard/reservations', [ReservationController::class, 'index'])->name('reservations.index');
+    Route::post('dashboard/reservations', [ReservationController::class, 'store'])->name('reservations.store');
+    Route::put('/reservations/{reservation}/approve', [ReservationController::class, 'approve'])->name('reservations.approve');
+    Route::put('/reservations/{reservation}/reject', [ReservationController::class, 'reject'])->name('reservations.reject');
+    Route::put('/reservations/{reservation}/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
+    Route::delete('dashboard/reservations/{reservation}', [ReservationController::class, 'destroy'])->name('reservations.destroy');
+
+    // Chat
+    Route::get('/dashboard/chats', [ChatController::class, 'index'])->name('chats.index');
+    Route::get('/dashboard/chats/{chat}', [ChatController::class, 'show'])->name('chats.show');
+    Route::post('/dashboard/chats/{chat}/messages', [ChatController::class, 'sendMessage'])->name('chats.messages.store');
+    Route::post('dashboard/chats', [ChatController::class, 'store'])->name('chats.store');
+    Route::post('dashboard/chats/{chat}/messages', [ChatController::class, 'sendMessage'])->name('chats.messages.store');
 });
 
 require __DIR__ . '/settings.php';

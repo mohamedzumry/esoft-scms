@@ -33,7 +33,7 @@ export default function ChatSidebar({ chats, onSelectChat, onCreateChat, selecte
                     </Button>
                 ))}
             </div>
-            {user?.role === 'it_staff' || user?.role === '' && (
+            {user?.role === 'it_staff' || user?.role === 'admin' && (
                 <div className="mt-auto">
                     <Button className="w-full" onClick={onCreateChat}>
                         Create New Chat

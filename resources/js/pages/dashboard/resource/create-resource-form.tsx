@@ -2,9 +2,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useForm } from '@inertiajs/react';
 
-export default function CreateResourceForm() {
+// Define props interface
+interface CreateResourceFormProps {
+    categories: { value: string; label: string }[];
+}
+
+export default function CreateResourceForm({ categories }: CreateResourceFormProps) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         category: '',
@@ -34,12 +40,22 @@ export default function CreateResourceForm() {
 
             <div>
                 <Label htmlFor="category">Category</Label>
-                <Input
-                    id="category"
+                <Select
                     value={data.category}
-                    onChange={(e) => setData('category', e.target.value)}
+                    onValueChange={(value) => setData('category', value)}
                     required
-                />
+                >
+                    <SelectTrigger id="category">
+                        <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {categories.map((category) => (
+                            <SelectItem key={category.value} value={category.value}>
+                                {category.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
                 {errors.category && <p className="text-red-500 text-sm">{errors.category}</p>}
             </div>
 

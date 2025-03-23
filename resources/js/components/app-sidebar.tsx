@@ -4,7 +4,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { type NavItem } from '@/types';
 import { PageProps } from '@inertiajs/core';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, MessageCircle, MessageSquare, Ticket, Tickets, Users2 } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, LifeBuoy, MessageCircle, MessageSquare, NotebookTabs, Ticket, Tickets, Users2 } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const footerNavItems: NavItem[] = [
@@ -59,6 +59,17 @@ export function AppSidebar() {
             icon: Ticket,
         },
 
+        // Only show 'Chats' links for 'admin', 'lecturer' and 'it_staff'
+        ...(user?.role === 'admin' || user?.role === 'it_staff' || user?.role === 'lecturer'
+            ? [
+                {
+                    title: 'Chats',
+                    href: '/dashboard/chats',
+                    icon: MessageSquare,
+                },
+            ]
+            : []),
+
         // Only show 'Event Categories' links for 'admin' and 'it_staff'
         ...(user?.role === 'admin' || user?.role === 'it_staff'
             ? [
@@ -73,23 +84,20 @@ export function AppSidebar() {
         // Only show Resources links for 'admin' and 'it_staff'
         ...(user?.role === 'admin' || user?.role === 'it_staff'
             ? [
-                {
-                    title: 'Resources',
-                    href: '/dashboard/resources',
-                    icon: Tickets,
-                },
-            ]
+                  {
+                      title: 'Resources',
+                      href: '/dashboard/resources',
+                      icon: LifeBuoy,
+                  },
+              ]
             : []),
-        // Only show Resources links for 'admin' and 'it_staff'
-        ...(user?.role === 'student' || user?.role === 'it_staff' || user?.role === 'admin'
-            ? [
-                {
-                    title: 'Chats',
-                    href: '/dashboard/chats',
-                    icon: MessageSquare,
-                },
-            ]
-            : []),
+
+        // Only show Reservations links for all 'admin', 'it_staff', 'lecturer' and 'student'
+        {
+            title: 'Reservations',
+            href: '/dashboard/reservations',
+            icon: NotebookTabs,
+        },
     ];
     return (
         <Sidebar collapsible="icon" variant="inset">

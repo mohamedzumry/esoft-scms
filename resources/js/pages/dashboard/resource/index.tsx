@@ -2,11 +2,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import AppLayout from '@/layouts/app-layout';
-import { Head, usePage, Link } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
-import CreateResourceForm from './create-resource-form';
-import { toast } from 'react-hot-toast';
 import { BreadcrumbItem } from '@/types';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
+import { toast } from 'react-hot-toast';
+import CreateResourceForm from './create-resource-form';
 
 // Define Resource interface
 interface Resource {
@@ -22,6 +22,7 @@ interface Resource {
 // Define props interface for Index component
 interface IndexProps {
     resources: Resource[];
+    categories: { value: string; label: string }[];
     auth: {
         user: {
             id: number;
@@ -37,7 +38,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Index({ resources, auth }: IndexProps) {
+export default function Index({ resources, auth, categories }: IndexProps) {
     const { flash } = usePage().props as any;
 
     useEffect(() => {
@@ -54,7 +55,7 @@ export default function Index({ resources, auth }: IndexProps) {
                 {/* Create Resource Button and Dialog */}
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button size="sm" className="w-fit mb-4">
+                        <Button size="sm" className="mb-4 w-fit">
                             Create Resource
                         </Button>
                     </DialogTrigger>
@@ -62,13 +63,13 @@ export default function Index({ resources, auth }: IndexProps) {
                         <DialogHeader>
                             <DialogTitle>Create New Resource</DialogTitle>
                         </DialogHeader>
-                        <CreateResourceForm />
+                        <CreateResourceForm categories={categories} />
                     </DialogContent>
                 </Dialog>
 
                 {/* Resources List */}
                 {resources.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 md:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {resources.map((resource) => (
                             <ResourceCard key={resource.id} resource={resource} userRole={auth.user.role} />
                         ))}
@@ -92,17 +93,17 @@ function ResourceCard({ resource, userRole }: ResourceCardProps) {
     const canDelete = ['admin', 'it_staff'].includes(userRole);
 
     return (
-        <Card className="rounded-lg shadow-md hover:scale-105 overflow-hidden transition-transform">
+        <Card className="overflow-hidden rounded-lg shadow-md transition-transform hover:scale-105">
             <CardHeader>
                 <CardTitle className="text-lg font-semibold">{resource.name}</CardTitle>
-                <CardDescription className="text-gray-500 text-sm"><span className="text-sm text-gray-600 font-bold">Category :</span> {resource.category}</CardDescription>
+                <CardDescription className="text-sm text-gray-500">
+                    <span className="text-sm font-bold text-gray-600">Category :</span> {resource.category}
+                </CardDescription>
             </CardHeader>
             <CardContent className="p-4">
-                <p className="text-sm text-gray-600 font-bold">Description</p>
+                <p className="text-sm font-bold text-gray-600">Description</p>
                 <p className="text-sm text-gray-600">{resource.description}</p>
-                {resource.capacity && (
-                    <p className="text-sm text-gray-500 mt-2">Capacity: {resource.capacity}</p>
-                )}
+                {resource.capacity && <p className="mt-2 text-sm text-gray-500">Capacity: {resource.capacity}</p>}
                 {canDelete && (
                     <div className="mt-4 flex justify-end">
                         <Button variant="destructive" asChild>
