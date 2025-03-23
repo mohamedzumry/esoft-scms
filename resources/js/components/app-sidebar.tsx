@@ -4,7 +4,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { type NavItem } from '@/types';
 import { PageProps } from '@inertiajs/core';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Ticket, Tickets, Users2 } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, MessageCircle, MessageSquare, Ticket, Tickets, Users2 } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const footerNavItems: NavItem[] = [
@@ -45,12 +45,12 @@ export function AppSidebar() {
         // Only show 'Users' links for 'admin' and 'it_staff'
         ...(user?.role === 'admin' || user?.role === 'it_staff'
             ? [
-                  {
-                      title: 'Users',
-                      href: '/dashboard/users',
-                      icon: Users2,
-                  },
-              ]
+                {
+                    title: 'Users',
+                    href: '/dashboard/users',
+                    icon: Users2,
+                },
+            ]
             : []),
 
         {
@@ -62,23 +62,33 @@ export function AppSidebar() {
         // Only show 'Event Categories' links for 'admin' and 'it_staff'
         ...(user?.role === 'admin' || user?.role === 'it_staff'
             ? [
-                  {
-                      title: 'Event Categories',
-                      href: '/dashboard/event-categories',
-                      icon: Tickets,
-                  },
-              ]
+                {
+                    title: 'Event Categories',
+                    href: '/dashboard/event-categories',
+                    icon: Tickets,
+                },
+            ]
             : []),
 
-            // Only show Resources links for 'admin' and 'it_staff'
+        // Only show Resources links for 'admin' and 'it_staff'
         ...(user?.role === 'admin' || user?.role === 'it_staff'
             ? [
-                  {
-                      title: 'Resources',
-                      href: '/dashboard/resources',
-                      icon: Tickets,
-                  },
-              ]
+                {
+                    title: 'Resources',
+                    href: '/dashboard/resources',
+                    icon: Tickets,
+                },
+            ]
+            : []),
+        // Only show Resources links for 'admin' and 'it_staff'
+        ...(user?.role === 'student' || user?.role === 'it_staff' || user?.role === 'admin'
+            ? [
+                {
+                    title: 'Chats',
+                    href: '/dashboard/chats',
+                    icon: MessageSquare,
+                },
+            ]
             : []),
     ];
     return (

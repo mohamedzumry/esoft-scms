@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Dashboard\ChatController;
 use App\Http\Controllers\Dashboard\Event\EventCategoryController;
 use App\Http\Controllers\Dashboard\Event\EventController;
 use App\Http\Controllers\Dashboard\ResourceController;
@@ -64,7 +65,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dashboard/event-categories', [EventCategoryController::class, 'index'])->name('event-categories.index');
     Route::post('dashboard/event-category', [EventCategoryController::class, 'store'])->name('event-categories.store');
     Route::delete('dashboard/event-category/{category}', [EventCategoryController::class, 'destroy'])
-    ->name('event-categories.destroy');
+        ->name('event-categories.destroy');
 
     // Resource
     Route::get('dashboard/resources', [ResourceController::class, 'index'])->name('resources.index');

@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 import { PageProps } from '@inertiajs/core';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
@@ -36,6 +37,13 @@ interface UsersPageProps extends PageProps {
     users: UsersProp;
     availableRoles: string[];
 }
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Users',
+        href: '/dashboard/users',
+    },
+];
 
 export default function Users() {
     // Access props using usePage with proper typing
@@ -71,7 +79,7 @@ export default function Users() {
     };
 
     return (
-        <AppLayout>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             <div className="flex flex-1 flex-col h-full p-4 rounded-xl gap-4">
                 <Button size="sm" onClick={() => setIsOpen(true)} className="w-fit mb-4">

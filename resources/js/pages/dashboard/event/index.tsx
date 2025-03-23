@@ -6,6 +6,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import React, { useState } from 'react';
 import CreateEventForm from './create-event-form';
+import { BreadcrumbItem } from '@/types';
 
 // Define event type
 interface Event {
@@ -37,12 +38,18 @@ interface IndexProps {
         };
     };
 }
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Events',
+        href: '/dashboard/events',
+    },
+];
 
 export default function Index({ upcomingEvents, pastEvents, categories, auth }: IndexProps) {
     const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
 
     return (
-        <AppLayout>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Events" />
 
             <div className="container mx-auto px-4 py-8">

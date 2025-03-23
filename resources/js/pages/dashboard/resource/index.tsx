@@ -6,6 +6,7 @@ import { Head, usePage, Link } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import CreateResourceForm from './create-resource-form';
 import { toast } from 'react-hot-toast';
+import { BreadcrumbItem } from '@/types';
 
 // Define Resource interface
 interface Resource {
@@ -29,6 +30,13 @@ interface IndexProps {
     };
 }
 
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Resources',
+        href: '/dashboard/resources',
+    },
+];
+
 export default function Index({ resources, auth }: IndexProps) {
     const { flash } = usePage().props as any;
 
@@ -39,7 +47,7 @@ export default function Index({ resources, auth }: IndexProps) {
     }, [flash]);
 
     return (
-        <AppLayout>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Resources" />
 
             <div className="container mx-auto px-4 py-8">
