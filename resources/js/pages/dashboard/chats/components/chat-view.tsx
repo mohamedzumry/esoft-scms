@@ -33,7 +33,7 @@ interface ChatViewProps {
     chat: Chat;
     messages: Message[];
     auth: { user: { id: number; role: string } };
-    refreshChatData?: () => void; // Callback to refresh chat data
+    refreshChatData?: () => void;
 }
 
 // Simple URL detection regex
@@ -65,12 +65,9 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
         const userRole = auth.user.role;
         if (["admin", "it_staff", "owner"].includes(userRole)) return true;
         if (userRole === "lecturer") {
-            // Check if the lecturer is assigned to this chat's course, batch, and module (if applicable)
             const lecturerCourses = chat.course?.id ? [chat.course.id] : [];
             const lecturerBatches = chat.batch?.id ? [chat.batch.id] : [];
             const lecturerModules = chat.module?.id ? [chat.module.id] : [];
-            // This assumes the backend includes lecturer assignment data in the chat object
-            // For simplicity, we'll assume the backend passes this info; otherwise, we need an API call
             return (
                 lecturerCourses.includes(chat.course?.id) &&
                 lecturerBatches.includes(chat.batch?.id) &&
@@ -116,7 +113,6 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
 
             if (!response.ok) throw new Error(`Failed to delete ${contextMenu.type}`);
 
-            // Refresh chat data
             refreshChatData?.();
         } catch (error) {
             console.error(`Error deleting ${contextMenu.type}:`, error);
@@ -126,7 +122,7 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
     };
 
     return (
-        <div className="flex-1 flex flex-col bg-gray-100">
+        <div className="flex-1 flex flex-col bg-gray-100 h-full">
             {/* Chat Header */}
             <div className="p-4 border-b bg-white flex justify-between items-center">
                 <div>
@@ -254,9 +250,9 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
                 </div>
             )}
 
-            {/* Message Input */}
+            {/* Message Input - Sticky at the bottom */}
             {!showFiles && (
-                <div className="p-4 border-t bg-white">
+                <div className="p-4 border-t bg-white sticky bottom-0 z-10 shadow-md">
                     <MessageInput chatId={chat.id} onSend={refreshChatData} />
                 </div>
             )}

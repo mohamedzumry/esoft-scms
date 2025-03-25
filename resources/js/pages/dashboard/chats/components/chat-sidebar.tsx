@@ -20,7 +20,7 @@ export default function ChatSidebar({ chats, onSelectChat, onCreateChat, selecte
     const user = auth?.user;
 
     return (
-        <div className="w-64 border-r p-4 flex flex-col h-full">
+        <div className="w-64 border-r p-4 flex flex-col h-full overflow-y-auto">
             <div className="space-y-2">
                 {chats.map((chat) => (
                     <Button

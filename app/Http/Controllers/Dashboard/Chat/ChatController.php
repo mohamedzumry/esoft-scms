@@ -148,11 +148,20 @@ class ChatController extends Controller
     }
 
     public function sendMessage(Request $request, Chat $chat)
-    {
+{
+    try {
+        $user = Auth::user();
+        // if (!$this->canSend($user, $chat)) {
+        //     throw new \Exception("You are not authorized to send messages in this chat.");
+        // }
+
         $request->validate(['message' => 'required|string|max:5000']);
-        $message = $chat->messages()->create(['user_id' => Auth::id(), 'message' => $request->message]);
-        return response()->json(['success' => 'Message sent successfully'], 201);
+        $message = $chat->messages()->create(['user_id' => $user->id, 'message' => $request->message]);
+        return redirect()->route('chats.index', $chat->id);
+    } catch (\Exception $e) {
+        return redirect()->back()->withErrors(['message' => $e->getMessage()]);
     }
+}
 
     public function getBatches($courseId)
     {

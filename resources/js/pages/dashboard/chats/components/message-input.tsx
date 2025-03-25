@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { router } from "@inertiajs/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send, Paperclip } from "lucide-react";
@@ -23,30 +24,18 @@ export default function MessageInput({ chatId, onSend }: MessageInputProps) {
         if (file) formData.append("file", file);
 
         try {
-            const response = await fetch(
-                file
-                    ? `/dashboard/chats/${chatId}/files`
-                    : `/dashboard/chats/${chatId}/messages`,
-                {
-                    method: "POST",
-                    body: formData,
-                    headers: {
-                        "X-Requested-With": "XMLHttpRequest",
-                        "X-CSRF-TOKEN": document
-                            .querySelector('meta[name="csrf-token"]')
-                            ?.getAttribute("content") || "",
-                    },
-                }
-            );
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(
-                    `Failed to send: ${response.status} ${response.statusText} - ${
-                        errorData.message || "No error message"
-                    }`
+            await new Promise((resolve, reject) => {
+                router.post(
+                    file
+                        ? `/dashboard/chats/${chatId}/files`
+                        : `/dashboard/chats/${chatId}/messages`,
+                    formData,
+                    {
+                        onSuccess: () => resolve(true),
+                        onError: (errors) => reject(new Error(JSON.stringify(errors))),
+                    }
                 );
-            }
+            });
 
             setMessage("");
             setFile(null);
