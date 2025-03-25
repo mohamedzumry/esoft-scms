@@ -107,6 +107,10 @@ Route::middleware('auth')->group(function () {
     Route::post('dashboard/courses', [CourseController::class, 'store'])->name('courses.store');
     Route::delete('dashboard/courses/{course}', [CourseController::class, 'destroy'])->name('courses.destroy');
 
+    Route::post('dashboard/courses/{course}/students', [CourseController::class, 'assignStudents']);
+    Route::get('dashboard/courses/{course}/batches', [CourseController::class, 'getBatches']);
+    Route::get('dashboard/courses/{course}/students', [CourseController::class, 'getAssignedStudents']);
+
     // Batches
     Route::get('dashboard/batches', [BatchController::class, 'index'])->name('batches.index');
     Route::get('dashboard/batches/create', [BatchController::class, 'create'])->name('batches.create');
@@ -118,6 +122,11 @@ Route::middleware('auth')->group(function () {
     Route::get('dashboard/modules/create', [ModuleController::class, 'create'])->name('modules.create');
     Route::post('dashboard/modules', [ModuleController::class, 'store'])->name('modules.store');
     Route::delete('dashboard/modules/{module}', [ModuleController::class, 'destroy'])->name('modules.destroy');
+
+    Route::post('dashboard/modules/{module}/students', [ModuleController::class, 'assignStudents']);
+    Route::post('dashboard/modules/{module}/lecturers', [ModuleController::class, 'assignLecturers']);
+    Route::get('dashboard/modules/{module}/students', [ModuleController::class, 'getAssignedStudents']);
+    Route::get('dashboard/modules/{module}/lecturers', [ModuleController::class, 'getAssignedLecturers']);
     
 });
 

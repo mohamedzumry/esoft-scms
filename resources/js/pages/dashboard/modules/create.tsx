@@ -17,14 +17,14 @@ interface ModuleFormData {
 }
 
 export default function CreateModule({ open, onClose }: CreateModuleProps) {
-    const { register, handleSubmit, control } = useForm<ModuleFormData>({
+    const { register, handleSubmit } = useForm<ModuleFormData>({
         defaultValues: {
             is_active: false,
         },
     });
 
-    const onSubmit = (data: ModuleFormData) => {
-        router.post("/dashboard/modules", data as Record<string, any>, {
+    const onSubmit = (data: any) => {
+        router.post("/dashboard/modules", data, {
             onSuccess: () => onClose(),
             onError: (errors) => console.error(errors),
         });
@@ -40,17 +40,7 @@ export default function CreateModule({ open, onClose }: CreateModuleProps) {
                     <Input placeholder="Module Name" {...register("name", { required: true })} />
                     <Input placeholder="Description" {...register("description")} />
                     <div className="flex items-center space-x-2">
-                        <Controller
-                            name="is_active"
-                            control={control}
-                            render={({ field }) => (
-                                <Checkbox
-                                    id="is_active"
-                                    checked={field.value}
-                                    onCheckedChange={(checked) => field.onChange(checked === true)}
-                                />
-                            )}
-                        />
+                        <Checkbox id="is_active" {...register("is_active")} />
                         <label htmlFor="is_active">Is Active</label>
                     </div>
                     <Button type="submit">Create Module</Button>
