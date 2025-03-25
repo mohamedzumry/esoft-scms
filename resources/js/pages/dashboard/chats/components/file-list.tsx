@@ -1,34 +1,56 @@
-import { File, Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
+import { router } from "@inertiajs/react";
+
+interface File {
+  id: number;
+  file_name: string;
+  path: string;
+  uploaded_by: { id: number; name: string };
+}
 
 interface FileListProps {
   chatId: number;
 }
 
 export default function FileList({ chatId }: FileListProps) {
-  const [files, setFiles] = useState<Array<{ id: number; name: string; url: string }>>([]);
+  const [files, setFiles] = useState<File[]>([]);
 
   useEffect(() => {
-    axios.get(`/api/chats/${chatId}/files`).then((response) => {
-      setFiles(response.data);
-    });
+    router.get(
+      route("chats.show", chatId),
+      {},
+      {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: (page) => {
+          setFiles(page.props.files as File[]);
+        },
+        onError: (errors) => console.error("Failed to load files:", errors),
+      }
+    );
   }, [chatId]);
 
   return (
-    <div className="space-y-2">
-      {files.map((file) => (
-        <div key={file.id} className="flex items-center justify-between p-2 border rounded">
-          <div className="flex items-center gap-2">
-            <File className="h-4 w-4" />
-            <span>{file.name}</span>
+    <div>
+      {files.length > 0 ? (
+        files.map((file) => (
+          <div key={file.id} className="mb-2">
+            <a
+              href={`/storage/${file.path}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline"
+            >
+              {file.file_name}
+            </a>{" "}
+            <span className="text-gray-500">
+              (Uploaded by {file.uploaded_by.name})
+            </span>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => window.open(file.url)}>
-            <Download className="h-4 w-4" />
-          </Button>
-        </div>
-      ))}
+        ))
+      ) : (
+        <p className="text-gray-500">No files uploaded yet.</p>
+      )}
     </div>
   );
 }

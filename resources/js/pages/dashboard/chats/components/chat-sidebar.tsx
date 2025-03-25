@@ -3,7 +3,7 @@ import { PageProps } from "@inertiajs/core";
 import { usePage } from "@inertiajs/react";
 
 interface ChatSidebarProps extends PageProps {
-    chats: Array<{ id: number; name: string }>;
+    chats: Array<{ id: number; chat_name: string }>;
     onSelectChat: (chatId: number) => void;
     onCreateChat: () => void;
     auth: {
@@ -29,11 +29,11 @@ export default function ChatSidebar({ chats, onSelectChat, onCreateChat, selecte
                         className="w-full justify-start"
                         onClick={() => onSelectChat(chat.id)}
                     >
-                        {chat.name}
+                        {chat.chat_name}
                     </Button>
                 ))}
             </div>
-            {user?.role === 'it_staff' || user?.role === 'admin' && (
+            {(user?.role === 'it_staff' || user?.role === 'lecturer' || user?.role === 'admin') && (
                 <div className="mt-auto">
                     <Button className="w-full" onClick={onCreateChat}>
                         Create New Chat

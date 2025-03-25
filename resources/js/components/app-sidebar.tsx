@@ -4,19 +4,15 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { type NavItem } from '@/types';
 import { PageProps } from '@inertiajs/core';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, LifeBuoy, MessageCircle, MessageSquare, NotebookTabs, Ticket, Tickets, Users2 } from 'lucide-react';
+import { BookOpenText, Globe, LayoutGrid, LifeBuoy, MessageSquare, NotebookTabs, Ticket, Tickets, Users2 } from 'lucide-react';
 import AppLogo from './app-logo';
+import { NavFooter } from './nav-footer';
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits',
-        icon: BookOpen,
+        title: 'Home',
+        href: '/',
+        icon: Globe,
     },
 ];
 
@@ -45,12 +41,12 @@ export function AppSidebar() {
         // Only show 'Users' links for 'admin' and 'it_staff'
         ...(user?.role === 'admin' || user?.role === 'it_staff'
             ? [
-                {
-                    title: 'Users',
-                    href: '/dashboard/users',
-                    icon: Users2,
-                },
-            ]
+                  {
+                      title: 'Users',
+                      href: '/dashboard/users',
+                      icon: Users2,
+                  },
+              ]
             : []),
 
         {
@@ -62,23 +58,23 @@ export function AppSidebar() {
         // Only show 'Chats' links for 'admin', 'lecturer' and 'it_staff'
         ...(user?.role === 'admin' || user?.role === 'it_staff' || user?.role === 'lecturer'
             ? [
-                {
-                    title: 'Chats',
-                    href: '/dashboard/chats',
-                    icon: MessageSquare,
-                },
-            ]
+                  {
+                      title: 'Chats',
+                      href: '/dashboard/chats',
+                      icon: MessageSquare,
+                  },
+              ]
             : []),
 
         // Only show 'Event Categories' links for 'admin' and 'it_staff'
         ...(user?.role === 'admin' || user?.role === 'it_staff'
             ? [
-                {
-                    title: 'Event Categories',
-                    href: '/dashboard/event-categories',
-                    icon: Tickets,
-                },
-            ]
+                  {
+                      title: 'Event Categories',
+                      href: '/dashboard/event-categories',
+                      icon: Tickets,
+                  },
+              ]
             : []),
 
         // Only show Resources links for 'admin' and 'it_staff'
@@ -99,6 +95,31 @@ export function AppSidebar() {
             icon: NotebookTabs,
         },
     ];
+
+    const courseNavItems: NavItem[] = [
+        ...(user?.role === 'admin' || user?.role === 'it_staff'
+            ? [
+                  {
+                      title: 'Course Management',
+                      icon: BookOpenText,
+                      children: [
+                          {
+                              title: 'Courses',
+                              href: '/dashboard/courses',
+                          },
+                          {
+                              title: 'Batches',
+                              href: '/dashboard/batches',
+                          },
+                          {
+                              title: 'Modules',
+                              href: '/dashboard/modules',
+                          },
+                      ],
+                  },
+              ]
+            : []),
+    ];
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -114,11 +135,15 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain sectionName="Main" items={mainNavItems} />
+            </SidebarContent>
+
+            <SidebarContent>
+                <NavMain sectionName="Courses" items={courseNavItems} />
             </SidebarContent>
 
             <SidebarFooter>
-                {/* <NavFooter items={footerNavItems} className="mt-auto" /> */}
+                <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

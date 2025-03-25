@@ -82,4 +82,19 @@ class User extends Authenticatable
         $this->role = $role->value;
         $this->save();
     }
+
+    public function chats()
+    {
+        return $this->hasMany(Chat::class, 'creator_id');
+    }
+
+    public function studentCourses()
+    {
+        return $this->hasMany(StudentCourse::class, 'student_id');
+    }
+
+    public function lecturerModules()
+    {
+        return $this->hasMany(LecturerModule::class, 'lecturer_id');
+    }
 }

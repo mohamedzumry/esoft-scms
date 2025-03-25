@@ -8,6 +8,8 @@ class ChatMessage extends Model
 {
     protected $guarded = [];
 
+    protected $fillable = ['chat_id', 'user_id', 'message'];
+
     public function chat()
     {
         return $this->belongsTo(Chat::class);

@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Dashboard\ChatController;
+use App\Http\Controllers\Dashboard\Course\BatchController;
+use App\Http\Controllers\Dashboard\Course\CourseController;
+use App\Http\Controllers\Dashboard\Course\ModuleController;
 use App\Http\Controllers\Dashboard\Event\EventCategoryController;
 use App\Http\Controllers\Dashboard\Event\EventController;
 use App\Http\Controllers\Dashboard\ReservationController;
@@ -76,17 +79,42 @@ Route::middleware('auth')->group(function () {
     // Reservation
     Route::get('dashboard/reservations', [ReservationController::class, 'index'])->name('reservations.index');
     Route::post('dashboard/reservations', [ReservationController::class, 'store'])->name('reservations.store');
-    Route::put('/reservations/{reservation}/approve', [ReservationController::class, 'approve'])->name('reservations.approve');
-    Route::put('/reservations/{reservation}/reject', [ReservationController::class, 'reject'])->name('reservations.reject');
-    Route::put('/reservations/{reservation}/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
+    Route::put('dashboard/reservations/{reservation}/approve', [ReservationController::class, 'approve'])->name('reservations.approve');
+    Route::put('dashboard/reservations/{reservation}/reject', [ReservationController::class, 'reject'])->name('reservations.reject');
+    Route::put('dashboard/reservations/{reservation}/cancel', [ReservationController::class, 'cancel'])->name('reservations.cancel');
     Route::delete('dashboard/reservations/{reservation}', [ReservationController::class, 'destroy'])->name('reservations.destroy');
 
     // Chat
-    Route::get('/dashboard/chats', [ChatController::class, 'index'])->name('chats.index');
-    Route::get('/dashboard/chats/{chat}', [ChatController::class, 'show'])->name('chats.show');
-    Route::post('/dashboard/chats/{chat}/messages', [ChatController::class, 'sendMessage'])->name('chats.messages.store');
+    Route::get('dashboard/chats', [ChatController::class, 'index'])->name('chats.index');
     Route::post('dashboard/chats', [ChatController::class, 'store'])->name('chats.store');
-    Route::post('dashboard/chats/{chat}/messages', [ChatController::class, 'sendMessage'])->name('chats.messages.store');
+    Route::get('dashboard/chats/{chat}', [ChatController::class, 'show'])->name('chats.show');
+    Route::get('dashboard/chats/{chat}/data', [ChatController::class, 'getChatData'])->name('chats.data');
+    Route::post('dashboard/chats/{chat}/messages', [ChatController::class, 'sendMessage']);
+    Route::post('dashboard/chats/{chat}/files', [ChatController::class, 'uploadFile']);
+    Route::get('dashboard/chats/batches/{courseId}', [ChatController::class, 'getBatches']);
+    Route::get('dashboard/chats/modules/{courseId}', [ChatController::class, 'getModules']);
+
+    Route::delete('/dashboard/chats/{chat}/messages/{message}', [ChatController::class, 'deleteMessage']);
+    Route::delete('/dashboard/chats/{chat}/files/{file}', [ChatController::class, 'deleteFile']);
+
+    // Courses
+    Route::get('dashboard/courses', [CourseController::class, 'index'])->name('courses.index');
+    Route::get('dashboard/courses/create', [CourseController::class, 'create'])->name('courses.create');
+    Route::post('dashboard/courses', [CourseController::class, 'store'])->name('courses.store');
+    Route::delete('dashboard/courses/{course}', [CourseController::class, 'destroy'])->name('courses.destroy');
+
+    // Batches
+    Route::get('dashboard/batches', [BatchController::class, 'index'])->name('batches.index');
+    Route::get('dashboard/batches/create', [BatchController::class, 'create'])->name('batches.create');
+    Route::post('dashboard/batches', [BatchController::class, 'store'])->name('batches.store');
+    Route::delete('dashboard/batches/{batch}', [BatchController::class, 'destroy'])->name('batches.destroy');
+
+    // Modules
+    Route::get('dashboard/modules', [ModuleController::class, 'index'])->name('modules.index');
+    Route::get('dashboard/modules/create', [ModuleController::class, 'create'])->name('modules.create');
+    Route::post('dashboard/modules', [ModuleController::class, 'store'])->name('modules.store');
+    Route::delete('dashboard/modules/{module}', [ModuleController::class, 'destroy'])->name('modules.destroy');
+    
 });
 
 require __DIR__ . '/settings.php';
