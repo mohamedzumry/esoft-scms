@@ -12,7 +12,7 @@ interface User {
 
 interface Batch {
     id: number;
-    name: string;
+    code: string;
 }
 
 interface Module {
@@ -131,7 +131,7 @@ export default function AssignLecturersToModuleDialog({ open, onClose, moduleId,
                             <option value="">Select a Batch</option>
                             {batches.map((batch) => (
                                 <option key={batch.id} value={batch.id}>
-                                    {batch.name}
+                                    {batch.code}
                                 </option>
                             ))}
                         </select>

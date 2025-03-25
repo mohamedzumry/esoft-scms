@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import AssignLecturersToModuleDialog from '../courses/dialogs/assign-lecturers-to-module-dialog';
 import AssignStudentsToModuleDialog from '../courses/dialogs/assign-students-to-module-dialog';
 import CreateModule from './create';
@@ -116,7 +116,7 @@ export default function ModuleIndex({ modules, students, lecturers, courses }: M
                     ))}
                 </ul>
             </div>
-            <CreateModule open={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}  />
+            <CreateModule open={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} courses={courses} />
             {selectedModuleId && (
                 <>
                     <AssignStudentsToModuleDialog
@@ -140,7 +140,6 @@ export default function ModuleIndex({ modules, students, lecturers, courses }: M
                     />
                 </>
             )}
-            <Toaster />
         </AppLayout>
     );
 }

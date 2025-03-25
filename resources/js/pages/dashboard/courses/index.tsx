@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import CreateCourse from './create';
 import AssignStudentsToCourseDialog from './dialogs/assign-students-to-course-dialog';
 
@@ -91,7 +91,6 @@ export default function CourseIndex({ courses, students, batches }: CourseProps)
                     students={students}
                 />
             )}
-            <Toaster />
         </AppLayout>
     );
 }

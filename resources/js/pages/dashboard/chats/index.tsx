@@ -5,6 +5,10 @@ import { BreadcrumbItem } from "@/types";
 import ChatSidebar from "./components/chat-sidebar";
 import ChatView from "./components/chat-view";
 import CreateChat from "./create";
+import ViewMembersDialog from "./components/view-members-dialog"; // Import the new dialog
+import toast from 'react-hot-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: "Chats", href: "/dashboard/chats" },
@@ -17,6 +21,7 @@ interface Chat {
     course: { id: number; name: string };
     batch: { id: number; code: string };
     module?: { id: number; name: string } | null;
+    can_delete: boolean;
 }
 
 interface Message {
@@ -54,6 +59,45 @@ export default function Index({ auth, chats, courses }: ChatProps) {
     const [selectedChat, setSelectedChat] = useState<number | null>(null);
     const [chatData, setChatData] = useState<ChatData | null>(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
+    const [deletingId, setDeletingId] = useState<number | null>(null);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
+    const [chatToDelete, setChatToDelete] = useState<Chat | null>(null);
+    const [isViewMembersDialogOpen, setIsViewMembersDialogOpen] = useState<boolean>(false);
+    const [selectedChatForMembers, setSelectedChatForMembers] = useState<Chat | null>(null);
+
+    const openDeleteDialog = (chat: Chat) => {
+        setChatToDelete(chat);
+        setIsDeleteDialogOpen(true);
+    };
+
+    const handleDelete = () => {
+        if (!chatToDelete) return;
+
+        setDeletingId(chatToDelete.id);
+        router.delete(`/dashboard/chats/${chatToDelete.id}`, {
+            onSuccess: () => {
+                toast.success('Chat deleted successfully');
+                setDeletingId(null);
+                setIsDeleteDialogOpen(false);
+                setChatToDelete(null);
+                if (selectedChat === chatToDelete.id) {
+                    setSelectedChat(null);
+                    setChatData(null);
+                }
+            },
+            onError: (errors) => {
+                toast.error('Failed to delete chat');
+                console.error(errors);
+                setDeletingId(null);
+                setIsDeleteDialogOpen(false);
+            },
+        });
+    };
+
+    const openViewMembersDialog = (chat: Chat) => {
+        setSelectedChatForMembers(chat);
+        setIsViewMembersDialogOpen(true);
+    };
 
     const refreshChatData = useCallback(() => {
         if (selectedChat) {
@@ -95,7 +139,10 @@ export default function Index({ auth, chats, courses }: ChatProps) {
                     chats={chats}
                     onSelectChat={setSelectedChat}
                     onCreateChat={() => setIsCreateModalOpen(true)}
+                    onDeleteChat={openDeleteDialog}
+                    onViewMembers={openViewMembersDialog}
                     selectedChatId={selectedChat}
+                    deletingId={deletingId}
                     auth={auth}
                 />
                 {selectedChat && chatData ? (
@@ -117,6 +164,28 @@ export default function Index({ auth, chats, courses }: ChatProps) {
                 auth={auth}
                 courses={courses}
             />
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete Chat</DialogTitle>
+                    </DialogHeader>
+                    <p>Are you sure you want to delete the chat "{chatToDelete?.chat_name}"? This action cannot be undone.</p>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
+                        <Button variant="destructive" onClick={handleDelete} disabled={deletingId !== null}>
+                            {deletingId ? 'Deleting...' : 'Delete'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            {selectedChatForMembers && (
+                <ViewMembersDialog
+                    open={isViewMembersDialogOpen}
+                    onClose={() => setIsViewMembersDialogOpen(false)}
+                    chatId={selectedChatForMembers.id}
+                    chatName={selectedChatForMembers.chat_name}
+                />
+            )}
         </AppLayout>
     );
 }

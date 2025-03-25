@@ -1,7 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import MessageInput from './message-input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Trash2 } from 'lucide-react';
+import { router } from '@inertiajs/react'; // Import Inertia router
+import toast from 'react-hot-toast';
 
 // Define TypeScript interfaces
 interface Message {
@@ -41,24 +45,12 @@ const urlRegex = /(https?:\/\/[^\s]+)/g;
 
 export default function ChatView({ chat, messages, auth, refreshChatData }: ChatViewProps) {
     const [showFiles, setShowFiles] = useState<boolean>(false);
-    const [contextMenu, setContextMenu] = useState<{
+    const [deleteDialog, setDeleteDialog] = useState<{
         type: 'message' | 'file' | null;
         id: number | null;
-        x: number;
-        y: number;
-    }>({ type: null, id: null, x: 0, y: 0 });
-    const contextMenuRef = useRef<HTMLDivElement>(null);
-
-    // Close context menu on click outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (contextMenuRef.current && !contextMenuRef.current.contains(event.target as Node)) {
-                setContextMenu({ type: null, id: null, x: 0, y: 0 });
-            }
-        };
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
+    }>({ type: null, id: null });
+    const [deleting, setDeleting] = useState<boolean>(false);
+    const [activeItem, setActiveItem] = useState<{ type: 'message' | 'file'; id: number } | null>(null);
 
     // Check if user can delete (admin, it_staff, owner, or lecturer in the chat)
     const canDelete = () => {
@@ -77,42 +69,42 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
         return false;
     };
 
-    const handleRightClick = (event: React.MouseEvent, type: 'message' | 'file', id: number) => {
-        event.preventDefault();
+    const handleItemClick = (type: 'message' | 'file', id: number) => {
         if (!canDelete()) return;
-        setContextMenu({
-            type,
-            id,
-            x: event.clientX,
-            y: event.clientY,
-        });
+        setActiveItem((prev) =>
+            prev && prev.type === type && prev.id === id ? null : { type, id }
+        );
     };
 
-    const handleDelete = async () => {
-        if (!contextMenu.type || !contextMenu.id) return;
+    const handleDeleteClick = (type: 'message' | 'file', id: number) => {
+        if (!canDelete()) return;
+        setDeleteDialog({ type, id });
+        setActiveItem(null);
+    };
+
+    const handleDelete = () => {
+        if (!deleteDialog.type || !deleteDialog.id) return;
 
         const endpoint =
-            contextMenu.type === 'message'
-                ? `/dashboard/chats/${chat.id}/messages/${contextMenu.id}`
-                : `/dashboard/chats/${chat.id}/files/${contextMenu.id}`;
+            deleteDialog.type === 'message'
+                ? `/dashboard/chats/${chat.id}/messages/${deleteDialog.id}`
+                : `/dashboard/chats/${chat.id}/files/${deleteDialog.id}`;
 
-        try {
-            const response = await fetch(endpoint, {
-                method: 'DELETE',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-            });
-
-            if (!response.ok) throw new Error(`Failed to delete ${contextMenu.type}`);
-
-            refreshChatData?.();
-        } catch (error) {
-            console.error(`Error deleting ${contextMenu.type}:`, error);
-        } finally {
-            setContextMenu({ type: null, id: null, x: 0, y: 0 });
-        }
+        setDeleting(true);
+        router.delete(endpoint, {
+            onSuccess: () => {
+                toast.success(`${deleteDialog.type === 'message' ? 'Message' : 'File'} deleted successfully`);
+                refreshChatData?.();
+            },
+            onError: (errors) => {
+                console.error(`Error deleting ${deleteDialog.type}:`, errors);
+                toast.error(`Failed to delete ${deleteDialog.type}`);
+            },
+            onFinish: () => {
+                setDeleting(false);
+                setDeleteDialog({ type: null, id: null });
+            },
+        });
     };
 
     return (
@@ -133,8 +125,8 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
 
             {/* Content Area: Messages or Files */}
             <ScrollArea
-                className="flex-grow overflow-y-auto p-4" // Use flex-grow and overflow-y-auto
-                style={{ maxHeight: 'calc(100vh - 128px)' }} // Adjust based on header/input heights
+                className="flex-grow overflow-y-auto p-4"
+                style={{ maxHeight: 'calc(100vh - 128px)' }}
             >
                 {showFiles ? (
                     chat.files && chat.files.length > 0 ? (
@@ -142,17 +134,40 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
                             {chat.files.map((file) => (
                                 <div
                                     key={file.id}
-                                    className="flex items-center justify-between rounded bg-white p-2 shadow"
-                                    onContextMenu={(e) => handleRightClick(e, 'file', file.id)}
+                                    className="group flex items-center justify-between rounded bg-white p-2 shadow hover:bg-gray-50"
+                                    onClick={() => handleItemClick('file', file.id)}
                                 >
                                     <div>
-                                        <a href={file.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                                        <a
+                                            href={file.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-500 hover:underline"
+                                        >
                                             {file.name}
                                         </a>
                                         <p className="text-xs text-gray-500">
                                             Uploaded by {file.uploaded_by.name} at {new Date(file.created_at).toLocaleString()}
                                         </p>
                                     </div>
+                                    {canDelete() && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className={`${
+                                                activeItem?.type === 'file' && activeItem?.id === file.id
+                                                    ? 'opacity-100'
+                                                    : 'opacity-0 group-hover:opacity-100'
+                                            }`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteClick('file', file.id);
+                                            }}
+                                            aria-label={`Delete file ${file.name}`}
+                                        >
+                                            <Trash2 className="h-4 w-4 text-red-500" />
+                                        </Button>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -169,40 +184,64 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
                             <div
                                 key={message.id}
                                 className={`mb-4 flex ${isSent ? 'justify-end' : 'justify-start'}`}
-                                onContextMenu={(e) => handleRightClick(e, 'message', message.id)}
+                                onClick={() => handleItemClick('message', message.id)}
                             >
-                                <div
-                                    className={`relative max-w-xs rounded-lg p-3 shadow ${
-                                        isSent ? 'bg-green-500 text-white' : 'bg-white text-gray-800'
-                                    }`}
-                                >
+                                <div className="group relative flex items-center">
                                     <div
-                                        className={`absolute top-0 h-0 w-0 border-t-8 border-b-8 border-transparent ${
-                                            isSent ? 'right-[-8px] border-l-8 border-l-green-500' : 'left-[-8px] border-r-8 border-r-white'
+                                        className={`relative max-w-xs rounded-lg p-3 shadow ${
+                                            isSent ? 'bg-green-500 text-white' : 'bg-white text-gray-800'
                                         }`}
-                                    />
-                                    {messageWithoutUrls && <p className="text-sm">{messageWithoutUrls}</p>}
-                                    {urls.length > 0 && (
-                                        <div className="mt-1">
-                                            {urls.map((url, index) => (
-                                                <a
-                                                    key={index}
-                                                    href={url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="block text-sm text-blue-500 hover:underline"
-                                                >
-                                                    {url}
-                                                </a>
-                                            ))}
-                                        </div>
+                                    >
+                                        <div
+                                            className={`absolute top-0 h-0 w-0 border-t-8 border-b-8 border-transparent ${
+                                                isSent ? 'right-[-8px] border-l-8 border-l-green-500' : 'left-[-8px] border-r-8 border-r-white'
+                                            }`}
+                                        />
+                                        {messageWithoutUrls && <p className="text-sm">{messageWithoutUrls}</p>}
+                                        {urls.length > 0 && (
+                                            <div className="mt-1">
+                                                {urls.map((url, index) => (
+                                                    <a
+                                                        key={index}
+                                                        href={url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="block text-sm text-blue-500 hover:underline"
+                                                    >
+                                                        {url}
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        )}
+                                        <span
+                                            className={`mt-1 block text-right text-xs ${
+                                                isSent ? 'text-gray-200' : 'text-gray-400'
+                                            }`}
+                                        >
+                                            {new Date(message.created_at).toLocaleTimeString([], {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            })}
+                                        </span>
+                                    </div>
+                                    {canDelete() && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className={`ml-2 ${
+                                                activeItem?.type === 'message' && activeItem?.id === message.id
+                                                    ? 'opacity-100'
+                                                    : 'opacity-0 group-hover:opacity-100'
+                                            } ${isSent ? 'order-first ml-0 mr-2' : ''}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteClick('message', message.id);
+                                            }}
+                                            aria-label={`Delete message from ${message.user.name}`}
+                                        >
+                                            <Trash2 className="h-4 w-4 text-red-500" />
+                                        </Button>
                                     )}
-                                    <span className={`mt-1 block text-right text-xs ${isSent ? 'text-gray-200' : 'text-gray-400'}`}>
-                                        {new Date(message.created_at).toLocaleTimeString([], {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                        })}
-                                    </span>
                                 </div>
                             </div>
                         );
@@ -212,18 +251,36 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
                 )}
             </ScrollArea>
 
-            {/* Context Menu */}
-            {contextMenu.type && (
-                <div
-                    ref={contextMenuRef}
-                    className="absolute z-10 rounded border bg-white shadow-lg"
-                    style={{ top: contextMenu.y, left: contextMenu.x }}
-                >
-                    <button onClick={handleDelete} className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100">
-                        Delete
-                    </button>
-                </div>
-            )}
+            {/* Delete Confirmation Dialog */}
+            <Dialog
+                open={deleteDialog.type !== null}
+                onOpenChange={() => setDeleteDialog({ type: null, id: null })}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete {deleteDialog.type === 'message' ? 'Message' : 'File'}</DialogTitle>
+                    </DialogHeader>
+                    <p>
+                        Are you sure you want to delete this {deleteDialog.type === 'message' ? 'message' : 'file'}? This action cannot be undone.
+                    </p>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setDeleteDialog({ type: null, id: null })}
+                            disabled={deleting}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDelete}
+                            disabled={deleting}
+                        >
+                            {deleting ? 'Deleting...' : 'Delete'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             {/* Message Input - Sticky at the bottom */}
             {!showFiles && (

@@ -1,11 +1,25 @@
-import { Button } from "@/components/ui/button";
-import { PageProps } from "@inertiajs/core";
-import { usePage } from "@inertiajs/react";
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { PageProps } from '@inertiajs/core';
+import { MoreVertical } from 'lucide-react'; // Three-dot icon
+
+interface Chat {
+    id: number;
+    chat_name: string;
+    can_delete: boolean;
+    creator: { id: number; name: string };
+    course: { id: number; name: string };
+    batch: { id: number; code: string };
+}
 
 interface ChatSidebarProps extends PageProps {
-    chats: Array<{ id: number; chat_name: string }>;
+    chats: Chat[];
     onSelectChat: (chatId: number) => void;
     onCreateChat: () => void;
+    onDeleteChat: (chat: Chat) => void;
+    onViewMembers: (chat: Chat) => void; // Add onViewMembers prop
+    selectedChatId: number | null;
+    deletingId: number | null;
     auth: {
         user: {
             id: number;
@@ -14,23 +28,47 @@ interface ChatSidebarProps extends PageProps {
     };
 }
 
-export default function ChatSidebar({ chats, onSelectChat, onCreateChat, selectedChatId, auth }: ChatSidebarProps) {
-    // Get user data from Inertia page props
-    // const { auth } = usePage<ChatSidebarProps>().props;
+export default function ChatSidebar({
+    chats,
+    onSelectChat,
+    onCreateChat,
+    onDeleteChat,
+    onViewMembers,
+    selectedChatId,
+    deletingId,
+    auth,
+}: ChatSidebarProps) {
     const user = auth?.user;
 
     return (
-        <div className="w-64 border-r p-4 flex flex-col h-full overflow-y-auto">
+        <div className="flex h-full w-64 flex-col overflow-y-auto border-r p-4">
             <div className="space-y-2">
                 {chats.map((chat) => (
-                    <Button
-                        key={chat.id}
-                        variant={selectedChatId === chat.id ? "secondary" : "ghost"}
-                        className="w-full justify-start"
-                        onClick={() => onSelectChat(chat.id)}
-                    >
-                        {chat.chat_name}
-                    </Button>
+                    <div key={chat.id} className="flex items-center justify-between">
+                        <Button
+                            variant={selectedChatId === chat.id ? 'secondary' : 'ghost'}
+                            className="flex-1 justify-start truncate"
+                            onClick={() => onSelectChat(chat.id)}
+                            disabled={deletingId === chat.id}
+                        >
+                            {chat.chat_name}
+                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" disabled={deletingId === chat.id}>
+                                    {deletingId === chat.id ? <span className="h-4 w-4 animate-spin">⏳</span> : <MoreVertical className="h-4 w-4" />}
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => onViewMembers(chat)}>View Members</DropdownMenuItem>
+                                {chat.can_delete && (
+                                    <DropdownMenuItem onClick={() => onDeleteChat(chat)} className="text-red-600">
+                                        Delete
+                                    </DropdownMenuItem>
+                                )}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 ))}
             </div>
             {(user?.role === 'it_staff' || user?.role === 'lecturer' || user?.role === 'admin') && (

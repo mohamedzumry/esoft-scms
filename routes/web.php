@@ -90,6 +90,8 @@ Route::middleware('auth')->group(function () {
     Route::post('dashboard/chats', [ChatController::class, 'store'])->name('chats.store');
     Route::get('dashboard/chats/{chat}', [ChatController::class, 'show'])->name('chats.show');
     Route::get('dashboard/chats/{chat}/data', [ChatController::class, 'getChatData'])->name('chats.data');
+    Route::delete('/dashboard/chats/{chat}', [ChatController::class, 'destroy'])->name('chats.destroy');
+    
     Route::post('dashboard/chats/{chat}/messages', [ChatController::class, 'sendMessage']);
     Route::post('dashboard/chats/{chat}/files', [ChatController::class, 'uploadFile']);
     Route::get('dashboard/chats/batches/{courseId}', [ChatController::class, 'getBatches']);
@@ -100,6 +102,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('dashboard/chats/{chat}/users', [ChatUserController::class, 'addUserToChat']);
     Route::delete('dashboard/chats/{chat}/users/{user}', [ChatUserController::class, 'removeUserFromChat']);
+    Route::get('dashboard/chats/{chat}/members', [ChatController::class, 'getMembers']);
 
     // Courses
     Route::get('dashboard/courses', [CourseController::class, 'index'])->name('courses.index');

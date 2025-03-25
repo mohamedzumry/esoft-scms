@@ -2,7 +2,7 @@ import { useState } from "react";
 import { router } from "@inertiajs/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send, Paperclip } from "lucide-react";
+import { Send, Paperclip, LoaderCircle } from "lucide-react";
 
 interface MessageInputProps {
     chatId: number;
@@ -66,7 +66,7 @@ export default function MessageInput({ chatId, onSend }: MessageInputProps) {
                 className="w-auto"
             />
             <Button onClick={handleSendMessage} disabled={isSending}>
-                {file ? <Paperclip className="h-4 w-4" /> : <Send className="h-4 w-4" />}
+                {isSending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             </Button>
         </div>
     );

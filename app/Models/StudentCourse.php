@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class StudentCourse extends Model
 {
@@ -23,8 +24,9 @@ class StudentCourse extends Model
         return $this->belongsTo(Batch::class);
     }
 
-    public function modules()
+    public function modules(): BelongsToMany
     {
-        return $this->hasMany(StudentCourseModule::class);
+        return $this->belongsToMany(Module::class, 'student_course_modules', 'student_course_id', 'module_id')
+                    ->withTimestamps();
     }
 }

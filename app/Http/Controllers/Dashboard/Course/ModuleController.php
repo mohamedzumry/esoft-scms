@@ -17,7 +17,7 @@ class ModuleController extends Controller
 {
     public function index()
     {
-        return Inertia::render('dashboard/modules/Index', [
+        return Inertia::render('dashboard/modules/index', [
             'modules' => Module::with('courses')->get()->map(function ($module) {
                 return [
                     'id' => $module->id,
@@ -52,7 +52,6 @@ class ModuleController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
-            'course_id' => 'required|exists:courses,id',
         ]);
 
         $module = Module::create([
@@ -96,7 +95,7 @@ class ModuleController extends Controller
             ]);
         }
 
-        return response()->json(['success' => 'Students assigned to module successfully']);
+        return redirect()->route('modules.index')->with('success', 'Students assigned successfully');
     }
 
     public function assignLecturers(Request $request, Module $module)
@@ -127,7 +126,7 @@ class ModuleController extends Controller
             ]);
         }
 
-        return response()->json(['success' => 'Lecturers assigned to module successfully']);
+        return redirect()->route('modules.index')->with('success', 'Lecturers assigned successfully');
     }
 
     public function getAssignedStudents(Module $module)
@@ -161,7 +160,6 @@ class ModuleController extends Controller
         return response()->json($assignedLecturers);
     }
 
-    // New method to assign a module to courses
     public function assignCourses(Request $request, Module $module)
     {
         $request->validate([
@@ -169,13 +167,11 @@ class ModuleController extends Controller
             'course_ids.*' => 'exists:courses,id',
         ]);
 
-        // Sync the courses for the module
         $module->courses()->sync($request->course_ids);
 
-        return response()->json(['success' => 'Module assigned to courses successfully']);
+        return redirect()->route('modules.index')->with('success', 'Courses assigned to module successfully');
     }
 
-    // New method to get assigned courses (optional, if needed for the UI)
     public function getAssignedCourses(Module $module)
     {
         $courses = $module->courses()->pluck('courses.id');

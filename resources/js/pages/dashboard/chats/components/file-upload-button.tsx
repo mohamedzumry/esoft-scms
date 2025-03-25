@@ -16,7 +16,9 @@ export default function FileUploadButton({ chatId }: FileUploadButtonProps) {
     router.post(route("chats.files.store", chatId), formData, {
       preserveState: true,
       preserveScroll: true,
-      onSuccess: () => console.log("File uploaded successfully"),
+      onSuccess: () => {
+        e.target.value = "";
+      },
       onError: (errors) => console.error("Failed to upload file:", errors),
     });
   };

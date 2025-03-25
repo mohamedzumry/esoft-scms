@@ -8,6 +8,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 interface CreateModuleProps {
     open: boolean;
     onClose: () => void;
+    courses: Course[];
+}
+
+interface Course {
+    id: number;
+    name: string;
 }
 
 interface ModuleFormData {
@@ -16,7 +22,7 @@ interface ModuleFormData {
     is_active: boolean;
 }
 
-export default function CreateModule({ open, onClose }: CreateModuleProps) {
+export default function CreateModule({ open, onClose, courses }: CreateModuleProps) {
     const { register, handleSubmit } = useForm<ModuleFormData>({
         defaultValues: {
             is_active: false,
