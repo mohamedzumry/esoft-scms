@@ -30,6 +30,13 @@ class Chat extends Model
         return $this->belongsTo(Module::class);
     }
 
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'chat_users', 'chat_id', 'user_id')
+            ->withPivot('joined_at')
+            ->withTimestamps();
+    }
+
     public function files()
     {
         return $this->hasMany(ChatFile::class);

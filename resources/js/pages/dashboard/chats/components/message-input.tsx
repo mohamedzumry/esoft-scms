@@ -73,6 +73,7 @@ export default function MessageInput({ chatId, onSend }: MessageInputProps) {
                 type="file"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
                 disabled={isSending}
+                onKeyUp={(e) => e.key === "Enter" && handleSendMessage()}
                 className="w-auto"
             />
             <Button onClick={handleSendMessage} disabled={isSending}>

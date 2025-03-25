@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Dashboard\ChatController;
+use App\Http\Controllers\Dashboard\Chat\ChatController;
+use App\Http\Controllers\Dashboard\Chat\ChatUserController;
 use App\Http\Controllers\Dashboard\Course\BatchController;
 use App\Http\Controllers\Dashboard\Course\CourseController;
 use App\Http\Controllers\Dashboard\Course\ModuleController;
@@ -94,8 +95,11 @@ Route::middleware('auth')->group(function () {
     Route::get('dashboard/chats/batches/{courseId}', [ChatController::class, 'getBatches']);
     Route::get('dashboard/chats/modules/{courseId}', [ChatController::class, 'getModules']);
 
-    Route::delete('/dashboard/chats/{chat}/messages/{message}', [ChatController::class, 'deleteMessage']);
-    Route::delete('/dashboard/chats/{chat}/files/{file}', [ChatController::class, 'deleteFile']);
+    Route::delete('dashboard/chats/{chat}/messages/{message}', [ChatController::class, 'deleteMessage']);
+    Route::delete('dashboard/chats/{chat}/files/{file}', [ChatController::class, 'deleteFile']);
+
+    Route::post('dashboard/chats/{chat}/users', [ChatUserController::class, 'addUserToChat']);
+    Route::delete('dashboard/chats/{chat}/users/{user}', [ChatUserController::class, 'removeUserFromChat']);
 
     // Courses
     Route::get('dashboard/courses', [CourseController::class, 'index'])->name('courses.index');
