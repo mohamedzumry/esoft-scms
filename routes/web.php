@@ -127,6 +127,9 @@ Route::middleware('auth')->group(function () {
     Route::post('dashboard/modules/{module}/lecturers', [ModuleController::class, 'assignLecturers']);
     Route::get('dashboard/modules/{module}/students', [ModuleController::class, 'getAssignedStudents']);
     Route::get('dashboard/modules/{module}/lecturers', [ModuleController::class, 'getAssignedLecturers']);
+
+    Route::post('/dashboard/modules/{module}/courses', [ModuleController::class, 'assignCourses']);
+    Route::get('/dashboard/modules/{module}/courses', [ModuleController::class, 'getAssignedCourses']);
     
 });
 

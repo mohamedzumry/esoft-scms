@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Dashboard\Course;
 
 use App\Http\Controllers\Controller;
 use App\Models\Batch;
-use App\Models\Course;
 use App\Models\LecturerModule;
 use App\Models\Module;
 use App\Models\StudentCourse;
 use App\Models\StudentCourseModule;
 use App\Models\User;
+use App\Models\Course; // Add this import
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -17,7 +17,7 @@ class ModuleController extends Controller
 {
     public function index()
     {
-        return Inertia::render('dashboard/modules/index', [
+        return Inertia::render('dashboard/modules/Index', [
             'modules' => Module::with('courses')->get()->map(function ($module) {
                 return [
                     'id' => $module->id,
@@ -25,10 +25,17 @@ class ModuleController extends Controller
                     'description' => $module->description,
                     'is_active' => $module->is_active,
                     'course_id' => $module->courses->first() ? $module->courses->first()->id : null,
+                    'courses' => $module->courses->map(function ($course) {
+                        return [
+                            'id' => $course->id,
+                            'name' => $course->name,
+                        ];
+                    })->toArray(), // Include all associated courses
                 ];
             }),
             'students' => User::where('role', 'student')->get(['id', 'name']),
             'lecturers' => User::where('role', 'lecturer')->get(['id', 'name']),
+            'courses' => Course::all(['id', 'name']), // Pass all courses for the create form and assignment dialog
         ]);
     }
 
@@ -45,6 +52,7 @@ class ModuleController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
+            'course_id' => 'required|exists:courses,id',
         ]);
 
         $module = Module::create([
@@ -52,6 +60,8 @@ class ModuleController extends Controller
             'description' => $request->description,
             'is_active' => $request->is_active ?? true,
         ]);
+
+        $module->courses()->attach($request->course_id);
 
         return redirect()->route('modules.index')->with('success', 'Module created successfully');
     }
@@ -149,5 +159,27 @@ class ModuleController extends Controller
             ->pluck('lecturer_id');
 
         return response()->json($assignedLecturers);
+    }
+
+    // New method to assign a module to courses
+    public function assignCourses(Request $request, Module $module)
+    {
+        $request->validate([
+            'course_ids' => 'required|array',
+            'course_ids.*' => 'exists:courses,id',
+        ]);
+
+        // Sync the courses for the module
+        $module->courses()->sync($request->course_ids);
+
+        return response()->json(['success' => 'Module assigned to courses successfully']);
+    }
+
+    // New method to get assigned courses (optional, if needed for the UI)
+    public function getAssignedCourses(Module $module)
+    {
+        $courses = $module->courses()->pluck('courses.id');
+
+        return response()->json($courses);
     }
 }
