@@ -17,17 +17,16 @@ class UserController extends Controller
 
         $user = Auth::user();
 
-        // Determine available roles based on the user's role
         $availableRoles = match ($user->role) {
             Role::Admin->value => Role::toArray(),
             Role::ITStaff->value => Collection::make(Role::toArray())
                 ->reject(fn($role) => in_array($role, [Role::Admin->value, Role::ITStaff->value]))
                 ->values()
                 ->toArray(),
-            default => [], // Handle other roles if needed
+            default => [],
         };
 
-        $users = User::paginate(3); // 10 users per page
+        $users = User::paginate(10);
         return Inertia::render('dashboard/users', [
             'users' => $users,
             'availableRoles' => $availableRoles,

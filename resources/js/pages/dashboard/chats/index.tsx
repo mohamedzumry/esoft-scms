@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import AppLayout from "@/layouts/app-layout";
-import { Head, router } from "@inertiajs/react";
+import { Head, router, usePage } from "@inertiajs/react";
 import { BreadcrumbItem } from "@/types";
 import ChatSidebar from "./components/chat-sidebar";
 import ChatView from "./components/chat-view";
@@ -64,6 +64,7 @@ export default function Index({ auth, chats, courses }: ChatProps) {
     const [chatToDelete, setChatToDelete] = useState<Chat | null>(null);
     const [isViewMembersDialogOpen, setIsViewMembersDialogOpen] = useState<boolean>(false);
     const [selectedChatForMembers, setSelectedChatForMembers] = useState<Chat | null>(null);
+    const { flash } = usePage().props as any;
 
     const openDeleteDialog = (chat: Chat) => {
         setChatToDelete(chat);
@@ -127,12 +128,13 @@ export default function Index({ auth, chats, courses }: ChatProps) {
         }
     }, [selectedChat]);
 
+
     useEffect(() => {
         refreshChatData();
     }, [selectedChat, refreshChatData]);
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout breadcrumbs={breadcrumbs} flash={flash}>
             <Head title="Chats" />
             <div className="flex" style={{ height: "calc(100vh - 5rem)" }}>
                 <ChatSidebar

@@ -1,20 +1,19 @@
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import MessageInput from './message-input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Trash2 } from 'lucide-react';
-import { router } from '@inertiajs/react'; // Import Inertia router
+import { router, usePage } from '@inertiajs/react';
 import toast from 'react-hot-toast';
 
 // Define TypeScript interfaces
 interface Message {
     id: number;
-    user: { id: number; name: string };
+    user: { id: number; name: string; role: string; email: string; nick_name: string };
     message: string;
     created_at: string;
 }
-
 interface File {
     id: number;
     name: string;
@@ -22,17 +21,15 @@ interface File {
     uploaded_by: { id: number; name: string };
     created_at: string;
 }
-
 interface Chat {
     id: number;
     chat_name: string;
-    creator: { id: number; name: string };
+    creator?: { id: number; name: string; role: string; email: string; nick_name: string };
     course: { id: number; name: string };
     batch: { id: number; code: string };
     module?: { id: number; name: string } | null;
     files?: File[];
 }
-
 interface ChatViewProps {
     chat: Chat;
     messages: Message[];
@@ -52,32 +49,18 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
     const [deleting, setDeleting] = useState<boolean>(false);
     const [activeItem, setActiveItem] = useState<{ type: 'message' | 'file'; id: number } | null>(null);
 
-    // Check if user can delete (admin, it_staff, owner, or lecturer in the chat)
-    const canDelete = () => {
-        const userRole = auth.user.role;
-        if (['admin', 'it_staff', 'owner'].includes(userRole)) return true;
-        if (userRole === 'lecturer') {
-            const lecturerCourses = chat.course?.id ? [chat.course.id] : [];
-            const lecturerBatches = chat.batch?.id ? [chat.batch.id] : [];
-            const lecturerModules = chat.module?.id ? [chat.module.id] : [];
-            return (
-                lecturerCourses.includes(chat.course?.id) &&
-                lecturerBatches.includes(chat.batch?.id) &&
-                (chat.module ? lecturerModules.includes(chat.module.id) : true)
-            );
-        }
-        return false;
-    };
+    const { flash } = usePage().props as any;
+
+    // Reverse the order of messages to show newest at the bottom
+    const reversedMessages = [...messages].reverse();
 
     const handleItemClick = (type: 'message' | 'file', id: number) => {
-        if (!canDelete()) return;
         setActiveItem((prev) =>
             prev && prev.type === type && prev.id === id ? null : { type, id }
         );
     };
 
     const handleDeleteClick = (type: 'message' | 'file', id: number) => {
-        if (!canDelete()) return;
         setDeleteDialog({ type, id });
         setActiveItem(null);
     };
@@ -92,13 +75,16 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
 
         setDeleting(true);
         router.delete(endpoint, {
+            preserveState: true,
+            preserveScroll: true,
             onSuccess: () => {
-                toast.success(`${deleteDialog.type === 'message' ? 'Message' : 'File'} deleted successfully`);
+                // const successMessage = flash?.success || `${deleteDialog.type === 'message' ? 'Message' : 'File'} deleted successfully`;
+                // toast.success(successMessage);
                 refreshChatData?.();
             },
-            onError: (errors) => {
-                console.error(`Error deleting ${deleteDialog.type}:`, errors);
-                toast.error(`Failed to delete ${deleteDialog.type}`);
+            onError: () => {
+                // const errorMessage = flash?.error || `Failed to delete ${deleteDialog.type}`;
+                // toast.error(errorMessage);
             },
             onFinish: () => {
                 setDeleting(false);
@@ -150,35 +136,39 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
                                             Uploaded by {file.uploaded_by.name} at {new Date(file.created_at).toLocaleString()}
                                         </p>
                                     </div>
-                                    {canDelete() && (
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className={`${
-                                                activeItem?.type === 'file' && activeItem?.id === file.id
-                                                    ? 'opacity-100'
-                                                    : 'opacity-0 group-hover:opacity-100'
-                                            }`}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDeleteClick('file', file.id);
-                                            }}
-                                            aria-label={`Delete file ${file.name}`}
-                                        >
-                                            <Trash2 className="h-4 w-4 text-red-500" />
-                                        </Button>
-                                    )}
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className={`${
+                                            activeItem?.type === 'file' && activeItem?.id === file.id
+                                                ? 'opacity-100'
+                                                : 'opacity-0 group-hover:opacity-100'
+                                        }`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteClick('file', file.id);
+                                        }}
+                                        aria-label={`Delete file ${file.name}`}
+                                    >
+                                        <Trash2 className="h-4 w-4 text-red-500" />
+                                    </Button>
                                 </div>
                             ))}
                         </div>
                     ) : (
                         <p className="text-center text-gray-500">No files uploaded yet.</p>
                     )
-                ) : messages.length > 0 ? (
-                    messages.map((message) => {
+                ) : reversedMessages.length > 0 ? (
+                    reversedMessages.map((message) => {
                         const isSent = message.user.id === auth.user.id;
                         const urls = message.message.match(urlRegex) || [];
                         const messageWithoutUrls = message.message.replace(urlRegex, '').trim();
+
+                        // Check if the current user is allowed to delete the message
+                        const canDelete =
+                            isSent ||
+                            (chat.creator?.id === auth.user.id) ||
+                            ['it_staff', 'admin'].includes(auth.user.role);
 
                         return (
                             <div
@@ -194,9 +184,17 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
                                     >
                                         <div
                                             className={`absolute top-0 h-0 w-0 border-t-8 border-b-8 border-transparent ${
-                                                isSent ? 'right-[-8px] border-l-8 border-l-green-500' : 'left-[-8px] border-r-8 border-r-white'
+                                                isSent
+                                                    ? 'right-[-8px] border-l-8 border-l-green-500'
+                                                    : 'left-[-8px] border-r-8 border-r-white'
                                             }`}
                                         />
+                                        {/* Show sender's name only for messages not sent by the current user */}
+                                        {!isSent && (
+                                            <p className="text-sm font-semibold text-blue-600 mb-1">
+                                                {message.user.name}
+                                            </p>
+                                        )}
                                         {messageWithoutUrls && <p className="text-sm">{messageWithoutUrls}</p>}
                                         {urls.length > 0 && (
                                             <div className="mt-1">
@@ -206,7 +204,9 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
                                                         href={url}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="block text-sm text-blue-500 hover:underline"
+                                                        className={`block text-sm underline hover:text-blue-600 ${
+                                                            isSent ? 'text-white' : 'text-black'
+                                                        }`}
                                                     >
                                                         {url}
                                                     </a>
@@ -224,7 +224,7 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
                                             })}
                                         </span>
                                     </div>
-                                    {canDelete() && (
+                                    {canDelete && (
                                         <Button
                                             variant="ghost"
                                             size="sm"
@@ -261,7 +261,8 @@ export default function ChatView({ chat, messages, auth, refreshChatData }: Chat
                         <DialogTitle>Delete {deleteDialog.type === 'message' ? 'Message' : 'File'}</DialogTitle>
                     </DialogHeader>
                     <p>
-                        Are you sure you want to delete this {deleteDialog.type === 'message' ? 'message' : 'file'}? This action cannot be undone.
+                        Are you sure you want to delete this{' '}
+                        {deleteDialog.type === 'message' ? 'message' : 'file'}? This action cannot be undone.
                     </p>
                     <DialogFooter>
                         <Button

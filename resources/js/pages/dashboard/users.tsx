@@ -46,7 +46,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Users() {
-    // Access props using usePage with proper typing
     const { users, availableRoles } = usePage<UsersPageProps>().props;
 
     const filteredLinks = users.last_page > 1 ? users.links : users.links.filter((link) => link.label !== '&laquo;' && link.label !== '&raquo;');
@@ -113,14 +112,12 @@ export default function Users() {
                 {/* Pagination */}
                 <div className="flex gap-2 mt-4">
                     {users.links
-                        // Filter out links without a URL (e.g., disabled Previous/Next)
                         .filter((link) => link.url !== null)
                         .map((link) => (
                             <Link
-                                key={link.label} // Use a unique identifier if available
+                                key={link.label}
                                 href={link.url ?? '#'}
                                 className={`rounded border px-3 py-1 ${link.active ? 'bg-gray-200 text-black' : ''}`}
-                                // Preserve HTML labels (e.g., "« Previous")
                                 dangerouslySetInnerHTML={{ __html: link.label }}
                             />
                         ))}
@@ -157,11 +154,6 @@ export default function Users() {
                                 />
                                 {errors.email && <span className="text-red-500 text-sm">{errors.email}</span>}
                             </div>
-                            {/* <div>
-                                <Label htmlFor="password">Password</Label>
-                                <Input required id="password" type="password" value={data.password} onChange={(e) => setData('password', e.target.value)}/>
-                                {errors.password && <span className="text-red-500 text-sm">{errors.password}</span>}
-                            </div> */}
                             <div>
                                 <Label htmlFor="role">Role</Label>
                                 <select

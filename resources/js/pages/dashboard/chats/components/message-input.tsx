@@ -56,14 +56,14 @@ export default function MessageInput({ chatId, onSend }: MessageInputProps) {
                 placeholder="Type a message..."
                 disabled={isSending}
                 onKeyUp={(e) => e.key === "Enter" && handleSendMessage()}
-                className="flex-1"
+                className="flex-1 dark:text-black bg-white"
             />
             <Input
                 type="file"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
                 disabled={isSending}
                 onKeyUp={(e) => e.key === "Enter" && handleSendMessage()}
-                className="w-auto"
+                className="w-auto dark:text-black bg-white"
             />
             <Button onClick={handleSendMessage} disabled={isSending}>
                 {isSending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}

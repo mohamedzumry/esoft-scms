@@ -104,7 +104,7 @@ class User extends Authenticatable
     protected static function booted()
     {
         static::addGlobalScope('selectColumns', function (Builder $builder) {
-            $builder->select(['users.id', 'users.name', 'users.role']);
+            $builder->select(['users.id', 'users.name', 'users.role', 'users.email', 'users.nick_name', 'users.password']);
         });
     }
 }

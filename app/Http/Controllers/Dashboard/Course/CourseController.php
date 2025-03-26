@@ -69,7 +69,7 @@ class CourseController extends Controller
             ]);
         }
 
-        return response()->json(['success' => 'Students assigned successfully']);
+        return redirect()->route('courses.index')->with('success', 'Students assigned successfully');
     }
 
     public function getAssignedStudents(Course $course, Request $request)

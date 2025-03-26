@@ -55,16 +55,11 @@ export function AppSidebar() {
             icon: Ticket,
         },
 
-        // Only show 'Chats' links for 'admin', 'lecturer' and 'it_staff'
-        ...(user?.role === 'admin' || user?.role === 'it_staff' || user?.role === 'lecturer'
-            ? [
-                  {
-                      title: 'Chats',
-                      href: '/dashboard/chats',
-                      icon: MessageSquare,
-                  },
-              ]
-            : []),
+        {
+            title: 'Chats',
+            href: '/dashboard/chats',
+            icon: MessageSquare,
+        },
 
         // Only show 'Event Categories' links for 'admin' and 'it_staff'
         ...(user?.role === 'admin' || user?.role === 'it_staff'
@@ -97,28 +92,24 @@ export function AppSidebar() {
     ];
 
     const courseNavItems: NavItem[] = [
-        ...(user?.role === 'admin' || user?.role === 'it_staff'
-            ? [
-                  {
-                      title: 'Course Management',
-                      icon: BookOpenText,
-                      children: [
-                          {
-                              title: 'Courses',
-                              href: '/dashboard/courses',
-                          },
-                          {
-                              title: 'Batches',
-                              href: '/dashboard/batches',
-                          },
-                          {
-                              title: 'Modules',
-                              href: '/dashboard/modules',
-                          },
-                      ],
-                  },
-              ]
-            : []),
+        {
+            title: 'Course Management',
+            icon: BookOpenText,
+            children: [
+                {
+                    title: 'Courses',
+                    href: '/dashboard/courses',
+                },
+                {
+                    title: 'Batches',
+                    href: '/dashboard/batches',
+                },
+                {
+                    title: 'Modules',
+                    href: '/dashboard/modules',
+                },
+            ],
+        },
     ];
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -138,9 +129,11 @@ export function AppSidebar() {
                 <NavMain sectionName="Main" items={mainNavItems} />
             </SidebarContent>
 
-            <SidebarContent>
-                <NavMain sectionName="Courses" items={courseNavItems} />
-            </SidebarContent>
+            {(user?.role === 'admin' || user?.role === 'it_staff') && (
+                <SidebarContent>
+                    <NavMain sectionName="Courses" items={courseNavItems} />
+                </SidebarContent>
+            )}
 
             <SidebarFooter>
                 <NavFooter items={footerNavItems} className="mt-auto" />

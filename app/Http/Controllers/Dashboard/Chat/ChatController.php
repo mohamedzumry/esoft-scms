@@ -141,35 +141,22 @@ class ChatController extends Controller
     public function show(Chat $chat)
     {
         $user = Auth::user();
-        $chat->load(['course', 'batch', 'module', 'files.uploadedBy']);
-        $messages = $chat->messages()->with('user')->latest()->get();
 
-        $chats = $user->role === 'admin' || $user->role === 'it_staff'
-            ? Chat::with(['course', 'batch', 'module'])->get()
-            : Chat::whereIn('course_id', $user->lecturerModules()->pluck('course_id'))
-            ->whereIn('batch_id', $user->lecturerModules()->pluck('batch_id'))
-            ->where(function ($query) use ($user) {
-                $query->whereNull('module_id')
-                    ->orWhereIn('module_id', $user->lecturerModules()->pluck('module_id'));
-            })
-            ->with(['course', 'batch', 'module'])
-            ->get();
+        // Check if the user has access to the chat
+        $hasAccess = $user->role === 'admin' || $user->role === 'it_staff' || $chat->users()->where('users.id', $user->id)->exists();
+        if (!$hasAccess) {
+            return redirect()->route('chats.index')->with('error', 'Unauthorized to view this chat');
+        }
 
-        $courses = $user->role === 'admin' || $user->role === 'it_staff'
-            ? Course::all()
-            : Course::whereIn('id', $user->lecturerModules()->pluck('course_id'))->get();
+        // Load relationships
+        $chat->load('course', 'batch', 'module', 'messages.user', 'files.uploaded_by', 'creator');
 
-        return Inertia::render('dashboard/chats/index', [
-            'auth' => [
-                'user' => [
-                    'id' => $user->id,
-                    'role' => $user->role,
-                ],
-            ],
+        return Inertia::render('Chats/Show', [
             'chat' => $chat,
-            'messages' => $messages,
-            'chats' => $chats,
-            'courses' => $courses,
+            'messages' => $chat->messages->with('user')->latest()->get(),
+            'chats' => Chat::whereHas('users', function ($query) use ($user) {
+                $query->where('users.id', $user->id);
+            })
         ]);
     }
 
@@ -189,7 +176,7 @@ class ChatController extends Controller
 
     public function getChatData(Chat $chat)
     {
-        $chat->load(['course', 'batch', 'module', 'files.uploadedBy']);
+        $chat->load(['course', 'batch', 'module', 'files.uploadedBy', 'creator']);
         $messages = $chat->messages()->with('user')->latest()->get();
 
         $transformedFiles = $chat->files->map(function ($file) {
@@ -264,17 +251,23 @@ class ChatController extends Controller
         $user = Auth::user();
         $message = $chat->messages()->findOrFail($messageId);
 
-        if ($chat->creator_id !== $user->id || !in_array($user->role, ['admin', 'it_staff'])) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+        $canDelete = (
+            $message->user_id === $user->id ||
+            $chat->creator_id === $user->id ||
+            in_array($user->role, ['admin', 'it_staff'])
+        );
+
+        if (!$canDelete) {
+            return back()->with('error', 'You are not authorized to delete this message.');
         }
 
         if ($message->chat_id !== $chat->id) {
-            return response()->json(['error' => 'Message does not belong to this chat'], 403);
+            return back()->with('error', 'Message does not belong to this chat.');
         }
 
         $message->delete();
 
-        return redirect()->route('chats.index', $chat->id);
+        return back()->with('success', 'Message deleted successfully');
     }
 
     public function deleteFile(Chat $chat, $fileId)

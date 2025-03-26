@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Chat extends Model
 {
@@ -10,7 +11,7 @@ class Chat extends Model
 
     protected $fillable = ['chat_name', 'creator_id', 'course_id', 'batch_id', 'module_id'];
 
-    public function creator()
+    public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'creator_id');
     }

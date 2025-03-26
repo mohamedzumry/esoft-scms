@@ -57,7 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard/users', [UserController::class, 'index'])->name('dashboard.users');
+    Route::get('dashboard/users', [UserController::class, 'index'])->name('dashboard.users');
 
     // Events
     Route::get('dashboard/events', [EventController::class, 'index'])->name('events.index');
