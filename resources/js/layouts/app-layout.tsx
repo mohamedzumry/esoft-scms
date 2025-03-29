@@ -1,18 +1,18 @@
 import AppLayoutTemplate from "@/layouts/app/app-sidebar-layout";
-import { type BreadcrumbItem } from "@/types";
+import { Notification, type BreadcrumbItem } from "@/types";
 import { useEffect } from "react";
 import { type ReactNode } from "react";
 import { Toaster, toast } from "react-hot-toast";
-import { } from "@inertiajs/react"
 
 interface AppLayoutProps {
   children: ReactNode;
   breadcrumbs?: BreadcrumbItem[];
   flash?: { success?: string; error?: string };
+  notifications?: Notification[];
+
 }
 
-export default function AppLayout({ children, breadcrumbs, flash, ...props }: AppLayoutProps) {
-  // Handle flash messages on component mount
+export default function AppLayout({ children, breadcrumbs, flash, notifications, ...props }: AppLayoutProps) {
   useEffect(() => {
     if (flash?.success) {
       toast.success(flash.success);

@@ -6,10 +6,11 @@ import { MoreVertical } from 'lucide-react'; // Three-dot icon
 interface Chat {
     id: number;
     chat_name: string;
-    can_delete: boolean;
-    creator: { id: number; name: string };
+    creator?: { id: number; name: string; role: string; email: string; nick_name: string };
     course: { id: number; name: string };
     batch: { id: number; code: string };
+    module?: { id: number; name: string } | null;
+    can_delete: boolean;
 }
 
 interface ChatSidebarProps extends PageProps {

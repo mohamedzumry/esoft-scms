@@ -3,12 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
-import { Head, router, usePage } from '@inertiajs/react'; // Added router for actions
+import { Head, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import CreateReservationForm from './create-reservation-form';
 
-// Define Reservation interface
 interface Reservation {
     id: number;
     reserved_by: number;
@@ -19,20 +18,18 @@ interface Reservation {
     description: string;
     course?: string | null;
     batch?: string | null;
-    approval_status: 'pending' | 'approved' | 'rejected' | 'cancelled'; // Added 'cancelled'
+    approval_status: 'pending' | 'approved' | 'rejected' | 'cancelled';
     created_at: string;
     updated_at: string;
     user: { id: number; name: string };
     resource: { id: number; name: string };
 }
 
-// Define Resource interface
 interface Resource {
     id: number;
     name: string;
 }
 
-// Define props interface for Index component
 interface IndexProps {
     reservations: Reservation[];
     resources: Resource[];
@@ -155,13 +152,11 @@ export default function Index({ reservations, resources, auth }: IndexProps) {
     );
 }
 
-// Define props interface for ReservationCard component
 interface ReservationCardProps {
     reservation: Reservation;
-    auth: IndexProps['auth']; // Pass auth to check user role and ownership
+    auth: IndexProps['auth'];
 }
 
-// Reservation Card Component
 function ReservationCard({ reservation, auth }: ReservationCardProps) {
     const isAdminOrStaff = auth.user.role === 'admin' || auth.user.role === 'it_staff';
     const isCreator = auth.user.id === reservation.reserved_by;

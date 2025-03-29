@@ -12,8 +12,10 @@ use App\Models\Module;
 use App\Models\StudentCourse;
 use App\Models\StudentCourseModule;
 use App\Models\User;
+use App\Notifications\Chat\ChatCreatedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -69,7 +71,6 @@ class ChatController extends Controller
             'module_id' => 'nullable|exists:modules,id',
         ]);
 
-        // Validate lecturer assignment if a module is selected
         if ($user->role === 'lecturer' && $request->module_id) {
             $assigned = $user->lecturerModules()
                 ->where('course_id', $request->course_id)
@@ -90,15 +91,11 @@ class ChatController extends Controller
             'module_id' => $request->module_id,
         ]);
 
-        // Attach users to the chat based on the conditions
         if ($request->module_id) {
-            // Case 1: Module is selected
-            // Fetch student_course_ids for the given course and batch
+
             $studentCourseIds = StudentCourse::where('course_id', $request->course_id)
                 ->where('batch_id', $request->batch_id) // Assuming batch_id is in student_courses
                 ->pluck('id');
-
-            // Fetch students assigned to the module via student_course_modules
             $studentIds = StudentCourseModule::whereIn('student_course_id', $studentCourseIds)
                 ->where('module_id', $request->module_id)
                 ->with('studentCourse.student') // Eager load the student
@@ -107,8 +104,6 @@ class ChatController extends Controller
                 ->unique()
                 ->values()
                 ->toArray();
-
-            // Fetch lecturers assigned to the course, batch, and module
             $lecturerIds = LecturerModule::where('course_id', $request->course_id)
                 ->where('batch_id', $request->batch_id)
                 ->where('module_id', $request->module_id)
@@ -119,21 +114,24 @@ class ChatController extends Controller
             $userIds = array_merge($studentIds, $lecturerIds);
             $userIds = array_unique($userIds);
         } else {
-            // Case 2: No module is selected
-            // Attach all students enrolled in the course and batch
             $userIds = StudentCourse::where('course_id', $request->course_id)
                 ->where('batch_id', $request->batch_id) // Assuming batch_id is in student_courses
                 ->pluck('student_id')
                 ->toArray();
         }
 
-        // Attach the creator to the chat (if not already included)
         if (!in_array($user->id, $userIds)) {
             $userIds[] = $user->id;
         }
 
         // Attach all users to the chat
         $chat->users()->sync($userIds);
+
+        // Send notifications to the assigned users (excluding the creator)
+        $usersToNotify = User::whereIn('id', $userIds)
+            ->where('id', '!=', $user->id)
+            ->get();
+        Notification::send($usersToNotify, new ChatCreatedNotification($chat));
 
         return redirect()->route('chats.index')->with('success', 'Chat created successfully');
     }

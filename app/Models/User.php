@@ -54,14 +54,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all reservations made by this user.
-     */
-    public function reservations(): HasMany
-    {
-        return $this->hasMany(Reservation::class, 'reserved_by');
-    }
-
-    /**
      * Validate if the user has a specific role.
      *
      * @param Role $role
@@ -82,6 +74,16 @@ class User extends Authenticatable
     {
         $this->role = $role->value;
         $this->save();
+    }
+
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(Reservation::class, 'reserved_by');
+    }
+
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class, 'created_by');
     }
 
     public function chats()

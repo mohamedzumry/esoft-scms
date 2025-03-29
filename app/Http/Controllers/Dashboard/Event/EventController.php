@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Dashboard\Event;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventCategory;
+use App\Models\User;
+use App\Notifications\Event\EventCreatedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -59,7 +62,12 @@ class EventController extends Controller
 
         $validated['created_by'] = Auth::user()->id;
 
-        Event::create($validated);
+        $event = Event::create($validated);
+
+        // Get users to notify, all users except the creator
+        $usersToNotify = User::where('id', '!=', Auth::user()->id)->get();
+        Notification::send($usersToNotify, new EventCreatedNotification($event));
+
         return redirect()->route('events.index')->with('success', 'Event created successfully.');
     }
 

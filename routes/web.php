@@ -7,9 +7,11 @@ use App\Http\Controllers\Dashboard\Course\CourseController;
 use App\Http\Controllers\Dashboard\Course\ModuleController;
 use App\Http\Controllers\Dashboard\Event\EventCategoryController;
 use App\Http\Controllers\Dashboard\Event\EventController;
+use App\Http\Controllers\Dashboard\IndexController;
 use App\Http\Controllers\Dashboard\ReservationController;
 use App\Http\Controllers\Dashboard\ResourceController;
 use App\Http\Controllers\Dashboard\UserController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -18,46 +20,15 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard', [
-            'courses' => [
-                'total' => 150,
-                'new' => 12
-            ],
-            'students' => [
-                'active' => 850,
-                'pending' => 23
-            ],
-            'lecturers' => [
-                'total' => 35,
-                'available' => 28
-            ],
-            'recentCourses' => [
-                [
-                    'id' => 1,
-                    'title' => 'Advanced Mathematics',
-                    'instructor' => 'Dr. Smith',
-                    'enrollments' => 45
-                ],
-                [
-                    'id' => 2,
-                    'title' => 'Advanced Mathematics',
-                    'instructor' => 'Dr. Smith',
-                    'enrollments' => 45
-                ],
-                [
-                    'id' => 3,
-                    'title' => 'Advanced Mathematics',
-                    'instructor' => 'Dr. Smith',
-                    'enrollments' => 45
-                ],
-            ]
-        ]);
-    })->name('dashboard');
+    Route::get('dashboard', [IndexController::class, 'index'])->name('dashboard');
 });
 
 Route::middleware('auth')->group(function () {
     Route::get('dashboard/users', [UserController::class, 'index'])->name('dashboard.users');
+
+    // Notifications
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
+    Route::get('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
 
     // Events
     Route::get('dashboard/events', [EventController::class, 'index'])->name('events.index');

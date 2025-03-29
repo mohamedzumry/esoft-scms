@@ -5,15 +5,8 @@ import MessageInput from './message-input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Trash2 } from 'lucide-react';
 import { router, usePage } from '@inertiajs/react';
-import toast from 'react-hot-toast';
 
 // Define TypeScript interfaces
-interface Message {
-    id: number;
-    user: { id: number; name: string; role: string; email: string; nick_name: string };
-    message: string;
-    created_at: string;
-}
 interface File {
     id: number;
     name: string;
@@ -21,6 +14,14 @@ interface File {
     uploaded_by: { id: number; name: string };
     created_at: string;
 }
+
+interface Message {
+    id: number;
+    user: { id: number; name: string; role: string; email: string; nick_name: string };
+    message: string;
+    created_at: string;
+}
+
 interface Chat {
     id: number;
     chat_name: string;
@@ -28,8 +29,10 @@ interface Chat {
     course: { id: number; name: string };
     batch: { id: number; code: string };
     module?: { id: number; name: string } | null;
+    can_delete: boolean;
     files?: File[];
 }
+
 interface ChatViewProps {
     chat: Chat;
     messages: Message[];

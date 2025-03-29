@@ -77,7 +77,7 @@ class ReservationController extends Controller
 
         $user = Auth::user();
         $validated['reserved_by'] = $user->id;
-        $validated['approval_status'] = 'pending'; // Default status
+        $validated['approval_status'] = 'pending';
 
         Reservation::create($validated);
 
@@ -120,21 +120,21 @@ class ReservationController extends Controller
 
     public function approve(Reservation $reservation)
     {
-        $this->authorize('update', $reservation); // Ensure only admin/it_staff can approve
+        $this->authorize('update', $reservation);
         $reservation->update(['approval_status' => 'approved']);
         return back()->with('success', 'Reservation approved');
     }
 
     public function reject(Reservation $reservation)
     {
-        $this->authorize('update', $reservation); // Ensure only admin/it_staff can reject
+        $this->authorize('update', $reservation);
         $reservation->update(['approval_status' => 'rejected']);
         return back()->with('success', 'Reservation rejected');
     }
 
     public function cancel(Reservation $reservation)
     {
-        $this->authorize('cancel', $reservation); // Custom policy for admin/it_staff or creator
+        $this->authorize('cancel', $reservation);
         $reservation->update(['approval_status' => 'cancelled']);
         return back()->with('success', 'Reservation cancelled');
     }

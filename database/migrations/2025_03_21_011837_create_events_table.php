@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title'); // Title of the event
             $table->foreignId('event_category_id')->constrained()->onDelete('cascade'); // Foreign key to event_categories
-            $table->foreignId('created_by')->constrained()->onDelete('cascade'); // Foreign key to event_categories
+            $table->foreignId('created_by')->constrained('users')->onDelete('cascade'); // Foreign key to event_categories
             $table->date('date'); // Date of the event
             $table->time('time'); // Time of the event
             $table->string('venue'); // Venue of the event

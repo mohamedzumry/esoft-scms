@@ -41,3 +41,19 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export type NotificationType = 'message' | 'alert' | 'system';
+
+interface Notification {
+    id: string;
+    type: NotificationType;
+    data: {
+        message: string;
+        chat_id: number;
+        chat_name: string;
+        url: string;
+        [key: string]: any;
+    };
+    read_at: string | null;
+    [key: string]: any;
+}

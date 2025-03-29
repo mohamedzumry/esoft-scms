@@ -17,16 +17,17 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface Chat {
     id: number;
     chat_name: string;
-    creator: { id: number; name: string };
+    creator?: { id: number; name: string; role: string; email: string; nick_name: string };
     course: { id: number; name: string };
     batch: { id: number; code: string };
     module?: { id: number; name: string } | null;
     can_delete: boolean;
+    files?: File[];
 }
 
 interface Message {
     id: number;
-    user: { id: number; name: string };
+    user: { id: number; name: string; role: string; email: string; nick_name: string };
     message: string;
     created_at: string;
 }
@@ -77,7 +78,7 @@ export default function Index({ auth, chats, courses }: ChatProps) {
         setDeletingId(chatToDelete.id);
         router.delete(`/dashboard/chats/${chatToDelete.id}`, {
             onSuccess: () => {
-                toast.success('Chat deleted successfully');
+
                 setDeletingId(null);
                 setIsDeleteDialogOpen(false);
                 setChatToDelete(null);
